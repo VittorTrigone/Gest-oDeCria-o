@@ -230,15 +230,13 @@ class SectorStore {
     }
     
     saveToFirebase() {
-        if (this.isSyncing) return;
-        this.isSyncing = true;
-        
         // Não envia a sessão local para a nuvem
         const dataToSave = { ...this.state };
         delete dataToSave.auth;
 
-        this.dbRef.set(dataToSave).finally(() => {
-            this.isSyncing = false;
+        this.dbRef.set(dataToSave).catch((error) => {
+            console.error("Erro crítico ao salvar no Firebase:", error);
+            if (window.app) window.app.showToast('Erro ao salvar no banco de dados. Verifique as regras do Firestore.', 'error');
         });
     }
 
