@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setor de Criação - Hub de Gerenciamento do Gerente</title>
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="css/main.css?v=2">
+    <link rel="stylesheet" href="css/components.css?v=2">
+</head>
+<body>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="modal-overlay active" style="z-index: 9999; background-color: #0f172a !important; backdrop-filter: none;">
+        <div class="modal-card" style="max-width: 400px; width: 90%;">
+            <div class="modal-header">
+                <h3 style="display: flex; align-items: center;"><div class="logo-badge" style="display:inline-flex; vertical-align:middle; margin-right: 10px;">SC</div> Login no Sistema</h3>
+            </div>
+            <div class="modal-body" style="padding-top: 0.5rem;">
+                <form id="login-form" onsubmit="window.authModule.handleLogin(event)" method="POST" action="#">
+                    <div class="form-group">
+                        <label>E-mail Corporativo</label>
+                        <input type="email" id="login-email" name="email" class="form-control" placeholder="Digite seu e-mail" autocomplete="username" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Senha</label>
+                        <input type="password" id="login-password" name="password" class="form-control" placeholder="Digite sua senha" autocomplete="current-password" required>
+                    </div>
+                    <p id="login-error" style="color: var(--accent-rose); font-size: 0.85rem; margin-top: 1rem; display: none; text-align: center;"></p>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1.5rem;">Entrar na Plataforma</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIRST ACCESS PASSWORD RESET MODAL -->
+    <div id="modal-first-access" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Bem-vindo! Crie sua nova senha</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Como este é o seu primeiro acesso (ou sua senha foi resetada), você precisa cadastrar uma senha pessoal.</p>
+                <div class="form-group">
+                    <label>Nova Senha</label>
+                    <input type="password" id="first-access-pwd" class="form-control" placeholder="Mínimo 6 caracteres">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="window.authModule.saveNewPassword()">Salvar Senha e Entrar</button>
+            </div>
+        </div>
+    </div>
+    <div class="app-container">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-badge">SC</div>
+                <div class="logo-text">
+                    <h2>Setor Criação</h2>
+                    <span>Painel do Gerente</span>
+                </div>
+            </div>
+
+            <div class="sidebar-scroll-area" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; margin-right: -5px; display: flex; flex-direction: column; gap: 1rem;">
+                <div class="nav-section" style="margin-bottom: 0;">
+                    <div class="nav-section-title">Gerenciamento Operacional</div>
+                    <ul class="nav-menu">
+                        <li class="nav-item active" data-tab="dashboard">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            <span>Painel Geral</span>
+                        </li>
+                        <li class="nav-item" data-tab="tasks">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <span>Meus Afazeres</span>
+                            <span class="badge-count" id="badge-tasks-count" style="display: none;">0</span>
+                        </li>
+                        <li class="nav-item" data-tab="products">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                            <span>Todos os Produtos</span>
+                        </li>
+                        <li class="nav-item" data-tab="kanban">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                            <span>Esteira de Produtos</span>
+                        </li>
+                        <li class="nav-item" data-tab="team">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <span>Equipe & Carga</span>
+                        </li>
+                        <li class="nav-item" data-tab="approvals">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Aprovações & Avisos</span>
+                            <span class="badge-count" id="badge-approvals-count" style="display: none;">0</span>
+                        </li>
+                        <li class="nav-item" data-tab="chat">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <span>Chat da Equipe</span>
+                            <span class="badge-count" id="badge-chat-count" style="display: none; background: var(--accent-rose);">0</span>
+                        </li>
+                        <li class="nav-item" data-tab="audit">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Registro de Auditoria</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section" style="margin-bottom: 0;">
+                    <div class="nav-section-title">Ferramentas Criativas</div>
+                    <ul class="nav-menu">
+                        <li class="nav-item" data-tab="calculator" style="opacity: 0.6;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            <span>Precificação <small style="font-size: 0.65rem; color: var(--accent-amber); font-weight: 700;">(Em Breve)</small></span>
+                        </li>
+                        <li class="nav-item" data-tab="prompts" style="opacity: 0.6;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Prompts IA & Assets <small style="font-size: 0.65rem; color: var(--accent-amber); font-weight: 700;">(Em Breve)</small></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MANAGER PROFILE CARD -->
+            <div class="manager-profile" style="position: relative;">
+                <div class="manager-avatar">VG</div>
+                <div class="manager-info" style="flex: 1;">
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Vittor</h4>
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Gerente de Setor</p>
+                </div>
+                <button type="button" class="btn-icon" style="background: transparent; border: none; color: var(--accent-rose); cursor: pointer; padding: 5px; z-index: 10;" onclick="if(window.authModule) window.authModule.logout();" title="Sair da Conta">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="header-page-title">Painel Geral do Setor</h1>
+                    <p id="header-page-desc">Visão executiva em tempo real da produtividade, esteira e gargalos da equipe.</p>
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn-icon" id="btn-toggle-theme" title="Alternar Tema Escuro/Claro">
+                        <span id="theme-icon" style="display: flex; align-items: center; justify-content: center;"></span>
+                    </button>
+
+                    <button class="btn-icon" id="btn-reset-data" title="Restaurar Dados Demonstrativos">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB 1: EXECUTIVE DASHBOARD -->
+            <section id="tab-dashboard" class="tab-pane active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Em Criação / Esteira</span>
+                            <div class="kpi-icon bg-indigo">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="kpi-total-products">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-neutral">Produtos ativos no setor</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Nos Marketplaces</span>
+                            <div class="kpi-icon bg-emerald">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="kpi-launched-products">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-trend-up">↑ Etapa final concluída</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Aprovações do Gerente</span>
+                            <div class="kpi-icon bg-amber">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="kpi-pending-approvals">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-neutral">Requer sua validação</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Carga Média da Equipe</span>
+                            <div class="kpi-icon bg-violet">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="kpi-team-workload">0%</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-trend-up">Nível saudável</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>Esteira de Criação por Etapa Oficial</span>
+                            <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Olist → Imagens → Preço → Verificação → Marketplaces</span>
+                        </div>
+                        <div class="chart-box" id="pipeline-chart-container"></div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>Alertas & Gargalos do Setor</span>
+                            <span style="font-size: 0.78rem; color: var(--accent-amber); font-weight: 700;">Atenção Gerencial</span>
+                        </div>
+                        <div id="bottleneck-alerts-container"></div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Histórico Recente de Atividades no Setor</span>
+                        <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Atualizações da Equipe</span>
+                    </div>
+                    <div id="activity-feed-container"></div>
+                </div>
+            </section>
+
+            <!-- TAB: INDIVIDUAL TASKS & PIPELINE NOTIFICATIONS -->
+            <section id="tab-tasks" class="tab-pane">
+                <div class="panel-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.06)); border-color: var(--border-highlight);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; width: 100%;">
+                        <!-- Perfil na Esquerda -->
+                        <div id="task-employee-profile-header"></div>
+                        
+                        <!-- Estatísticas no Centro/Direita -->
+                        <div id="task-stats-container" style="display: flex; gap: 1.5rem; align-items: center; margin-left: auto;"></div>
+                        
+                        <!-- Dropdown de seleção (Apenas Gerente) na Direita -->
+                        <div id="task-selector-wrapper" style="display: flex; align-items: center; gap: 0.75rem;">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">👤 Ver afazeres de:</label>
+                            <select id="task-active-employee-select" class="form-control" style="min-width: 220px; font-weight: 700; color: var(--primary);"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 800;">🚨 Produtos Notificados na Sua Esteira</h3>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">Ações que dependem de você</span>
+                        </div>
+                        <div id="task-assigned-products-container" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+                    </div>
+
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 800;">📝 Lembretes & Tarefas Pessoais</h3>
+                        </div>
+
+                        <div class="panel-card" style="padding: 1.25rem;">
+                            <form id="form-add-personal-task" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                <input type="text" id="input-personal-task" class="form-control" placeholder="Escreva um lembrete pessoal..." required autocomplete="off">
+                                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 0.85rem;">+ Adicionar</button>
+                            </form>
+
+                            <div id="task-personal-list-container" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: PRODUCTS OVERVIEW & PROGRESS -->
+            <section id="tab-products" class="tab-pane">
+                <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Total de Produtos</span>
+                            <div class="kpi-icon bg-indigo">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="prod-kpi-total">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-neutral">Todos os cadastrados</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Em Esteira (Ativos)</span>
+                            <div class="kpi-icon bg-amber">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="prod-kpi-active">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-neutral">Nas 5 etapas de criação</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Finalizados</span>
+                            <div class="kpi-icon bg-emerald">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="prod-kpi-completed">0</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-trend-up">↑ Nos Marketplaces</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Progresso Médio</span>
+                            <div class="kpi-icon bg-violet">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="prod-kpi-avg-progress">0%</div>
+                        <div class="kpi-footer">
+                            <span class="kpi-trend-up">Média geral do setor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="products-controls">
+                    <div class="search-filter-box">
+                        <input type="text" id="products-search-input" class="form-control" placeholder="🔍 Buscar por nome ou SKU do produto...">
+                        <select id="products-filter-assignee" class="form-control" style="min-width: 210px; width: auto;">
+                            <option value="all">Todos Colaboradores</option>
+                        </select>
+                        <select id="products-filter-status" class="form-control" style="min-width: 190px; width: auto;">
+                            <option value="all">Todos Status</option>
+                            <option value="active">Em Esteira (Ativos)</option>
+                            <option value="completed">Concluídos (100%)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="window.app.openModal('modal-add-product')">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Novo Produto
+                    </button>
+                </div>
+
+                <div id="products-list-container" style="margin-top: 1.25rem;"></div>
+            </section>
+
+            <!-- TAB 2: KANBAN PRODUCT PIPELINE (5 OFFICIAL STAGES) -->
+            <section id="tab-kanban" class="tab-pane">
+                <div class="kanban-controls">
+                    <div class="search-filter-box">
+                        <input type="text" id="kanban-search-input" class="form-control" placeholder="🔍 Buscar por título ou SKU do produto...">
+                        <select id="kanban-filter-assignee" class="form-control" style="min-width: 210px; width: auto;">
+                            <option value="all">Todos Colaboradores</option>
+                        </select>
+                        <select id="kanban-filter-priority" class="form-control" style="min-width: 180px; width: auto;">
+                            <option value="all">Todas Prioridades</option>
+                            <option value="alta">Alta</option>
+                            <option value="media">Média</option>
+                            <option value="baixa">Baixa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 5 Official Columns -->
+                <div class="kanban-board">
+                    
+                    <!-- Col 1: Olist ERP -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title-group">
+                                <div class="column-indicator" style="background: var(--accent-cyan);"></div>
+                                <span class="column-title">1. Cadastro Olist (ERP)</span>
+                            </div>
+                            <span class="column-count" id="kanban-count-olist_setup">0</span>
+                        </div>
+                        <div class="kanban-cards-container" id="kanban-col-olist_setup"></div>
+                    </div>
+
+                    <!-- Col 2: Images -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title-group">
+                                <div class="column-indicator" style="background: var(--secondary);"></div>
+                                <span class="column-title">2. Criação de Imagens</span>
+                            </div>
+                            <span class="column-count" id="kanban-count-images">0</span>
+                        </div>
+                        <div class="kanban-cards-container" id="kanban-col-images"></div>
+                    </div>
+
+                    <!-- Col 3: Pricing by Channel -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title-group">
+                                <div class="column-indicator" style="background: var(--accent-emerald);"></div>
+                                <span class="column-title">3. Precificação</span>
+                            </div>
+                            <span class="column-count" id="kanban-count-pricing">0</span>
+                        </div>
+                        <div class="kanban-cards-container" id="kanban-col-pricing"></div>
+                    </div>
+
+                    <!-- Col 4: General Verification -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title-group">
+                                <div class="column-indicator" style="background: var(--accent-amber);"></div>
+                                <span class="column-title">4. Verificação Geral</span>
+                            </div>
+                            <span class="column-count" id="kanban-count-verification">0</span>
+                        </div>
+                        <div class="kanban-cards-container" id="kanban-col-verification"></div>
+                    </div>
+
+                    <!-- Col 5: Marketplaces -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title-group">
+                                <div class="column-indicator" style="background: var(--accent-rose);"></div>
+                                <span class="column-title">5. Marketplaces</span>
+                            </div>
+                            <span class="column-count" id="kanban-count-marketplaces">0</span>
+                        </div>
+                        <div class="kanban-cards-container" id="kanban-col-marketplaces"></div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- TAB 3: TEAM & WORKLOAD -->
+            <section id="tab-team" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 800;">Colaboradores do Setor</h2>
+                        <p style="font-size: 0.82rem; color: var(--text-muted);">Monitore a capacidade e tarefas atribuídas a cada profissional.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.app.openModal('modal-add-employee')">
+                        + Adicionar Colaborador
+                    </button>
+                </div>
+
+                <div class="panel-card" style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Configuração da Esteira (Responsáveis por Etapa)</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Defina qual funcionário será automaticamente atribuído aos produtos que entrarem em cada etapa.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" id="stage-config-container">
+                        <!-- Stage selects rendered dynamically by team.js -->
+                    </div>
+                </div>
+
+                <div class="team-grid" id="team-grid-container"></div>
+            </section>
+
+            <!-- TAB 4: APPROVALS & ANNOUNCEMENTS -->
+            <section id="tab-approvals" class="tab-pane">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.4rem;">Fila de Aprovações Pendentes</h2>
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Itens que necessitam do seu aval para avançar na esteira.</p>
+                        
+                        <div class="approval-list" id="approvals-list-container"></div>
+                    </div>
+
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h2 style="font-size: 1.1rem; font-weight: 800;">Mural de Avisos</h2>
+                            <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.78rem;" onclick="window.app.openModal('modal-add-announcement')">
+                                + Novo Aviso
+                            </button>
+                        </div>
+                        <div class="announcement-grid" id="announcements-grid-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: TEAM CHAT -->
+            <section id="tab-chat" class="tab-pane">
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subdued); font-weight: 700; margin-bottom: 0.85rem; letter-spacing: 0.5px;">Canais do Setor</h4>
+                        <ul class="chat-channel-list">
+                            <li class="chat-channel-item active" data-channel="geral" onclick="window.chatModule.switchChannel('geral', '# geral-setor')"># geral-setor</li>
+                            <li class="chat-channel-item" data-channel="olist-cadastros" onclick="window.chatModule.switchChannel('olist-cadastros', '# olist-cadastros')"># olist-cadastros</li>
+                            <li class="chat-channel-item" data-channel="imagens" onclick="window.chatModule.switchChannel('imagens', '# imagens-e-artes')"># imagens-e-artes</li>
+                            <li class="chat-channel-item" data-channel="precificacao" onclick="window.chatModule.switchChannel('precificacao', '# precificacao-canais')"># precificacao-canais</li>
+                            <li class="chat-channel-item" data-channel="marketplaces" onclick="window.chatModule.switchChannel('marketplaces', '# cadastro-marketplaces')"># cadastro-marketplaces</li>
+                        </ul>
+
+                        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subdued); font-weight: 700; margin-top: 2rem; margin-bottom: 0.85rem; letter-spacing: 0.5px;">Mensagens Diretas</h4>
+                        <ul class="chat-channel-list" id="chat-dm-list">
+                            <!-- Preenchido via JS (chat.js) -->
+                        </ul>
+                    </div>
+
+                    <div class="chat-main-area">
+                        <div class="chat-header">
+                            <span id="chat-active-channel-title"># geral-setor</span>
+                            <span style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600;">🟢 1 colaborador online</span>
+                        </div>
+
+                        <div class="chat-messages-body" id="chat-messages-body"></div>
+
+                        <form id="chat-form-send" class="chat-input-bar" method="POST" action="#">
+                            <input type="text" id="chat-input-message" class="form-control" placeholder="Escreva uma mensagem para a equipe..." required autocomplete="off">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: AUDIT LOGS -->
+            <section id="tab-audit" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 800;">Registro de Auditoria</h2>
+                        <p style="font-size: 0.82rem; color: var(--text-muted);">Visão global de todas as modificações e aprovações do sistema.</p>
+                    </div>
+                </div>
+                
+                <div class="panel-card">
+                    <div id="audit-global-list">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL: ADD PRODUCT TO PIPELINE -->
+    <div class="modal-overlay" id="modal-add-product">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Iniciar Produto no ERP Olist</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-add-product')">&times;</button>
+            </div>
+            <form id="form-add-product">
+                <div class="form-group">
+                    <label>Nome / Título do Produto</label>
+                    <input type="text" name="title" class="form-control" placeholder="Ex: Garrafa Térmica Smart LED" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Código SKU</label>
+                        <input type="text" name="sku" class="form-control" placeholder="Ex: GT-SMART-500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria Olist</label>
+                        <input type="text" name="category" class="form-control" placeholder="Ex: Utilidades, Eletrônicos" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Responsável pelo Cadastro Olist</label>
+                        <select name="assigneeId" id="new-product-assignee" class="form-control" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridade</label>
+                        <select name="priority" class="form-control">
+                            <option value="alta">Alta</option>
+                            <option value="media" selected>Média</option>
+                            <option value="baixa">Baixa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Custo Unitário (R$)</label>
+                        <input type="number" name="cost" class="form-control" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço Base Sugerido (R$)</label>
+                        <input type="number" name="suggestedPrice" class="form-control" placeholder="0.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Observações Iniciais do Produto</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Instruções para cadastramento no ERP..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('modal-add-product')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PRODUCT DETAIL & STAGE-SPECIFIC VIEW -->
+    <div class="modal-overlay" id="modal-product-detail">
+        <div class="modal-card" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3>Detalhamento da Etapa do Produto</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-product-detail')">&times;</button>
+            </div>
+            <div id="product-detail-body"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: REJECT APPROVAL / REQUEST ADJUSTMENT -->
+    <div class="modal-overlay" id="modal-reject-approval">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Solicitar Ajuste no Pedido de Aprovação</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-reject-approval')">&times;</button>
+            </div>
+            <form id="form-reject-approval">
+                <div class="form-group">
+                    <label>Motivo da Solicitação de Ajuste / Recusa</label>
+                    <textarea name="rejectReason" class="form-control" rows="4" placeholder="Explique o que precisa ser corrigido (ex: ajustar preço da Shopee, refazer fotos com fundo branco)..." required></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('modal-reject-approval')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--accent-rose);">Enviar Solicitação de Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD TEAM MEMBER -->
+    <div class="modal-overlay" id="modal-add-employee">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Cadastrar Colaborador do Setor</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-add-employee')">&times;</button>
+            </div>
+            <form id="form-add-employee">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="name" class="form-control" placeholder="Ex: Mariana Costa" required>
+                </div>
+                <div class="form-group">
+                    <label>Cargo / Função no Setor</label>
+                    <input type="text" name="role" class="form-control" placeholder="Ex: Designer de Imagem, Especialista em Cadastros" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail Corporativo</label>
+                    <input type="email" name="email" class="form-control" placeholder="mariana@empresa.com">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Especialidades (separadas por vírgula)</label>
+                        <input type="text" name="skills" class="form-control" placeholder="Olist, Photoshop, Shopee, Mercado Livre">
+                    </div>
+                    <div class="form-group">
+                        <label>Capacidade Máxima de Tarefas</label>
+                        <input type="number" name="maxCapacity" class="form-control" value="8">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('modal-add-employee')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cadastrar Colaborador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT TEAM MEMBER -->
+    <div class="modal-overlay" id="modal-edit-employee">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Editar Colaborador</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-edit-employee')">&times;</button>
+            </div>
+            <form id="form-edit-employee">
+                <input type="hidden" name="id" id="edit-emp-id">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="name" id="edit-emp-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Cargo / Função no Setor</label>
+                    <input type="text" name="role" id="edit-emp-role" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail Corporativo</label>
+                    <input type="email" name="email" id="edit-emp-email" class="form-control">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Especialidades (separadas por vírgula)</label>
+                        <input type="text" name="skills" id="edit-emp-skills" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Capacidade Máxima de Tarefas</label>
+                        <input type="number" name="maxCapacity" id="edit-emp-maxCapacity" class="form-control" value="8">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('modal-edit-employee')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD ANNOUNCEMENT -->
+    <div class="modal-overlay" id="modal-add-announcement">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Publicar Aviso no Mural</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-add-announcement')">&times;</button>
+            </div>
+            <form id="form-add-announcement">
+                <div class="form-group">
+                    <label>Título do Aviso</label>
+                    <input type="text" name="title" class="form-control" placeholder="Ex: Meta da semana de cadastros" required>
+                </div>
+                <div class="form-group">
+                    <label>Prioridade</label>
+                    <select name="priority" class="form-control">
+                        <option value="normal" selected>Normal</option>
+                        <option value="alta">Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Conteúdo da Mensagem</label>
+                    <textarea name="content" class="form-control" rows="4" placeholder="Escreva a mensagem para a equipe..." required></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('modal-add-announcement')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Publicar Comunicado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- MODAL: PRODUCT HISTORY -->
+    <div class="modal-overlay" id="modal-product-history">
+        <div class="modal-card" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>📜 Histórico de Modificações do Produto</h3>
+                <button class="close-modal" onclick="window.app.closeModal('modal-product-history')">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; flex: 1; padding-top: 1rem;" id="product-history-container">
+                <!-- Renderizado via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Compat v8 para uso global síncrono mais simples) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA80gFVeDa2DS5jGWIWvIiLMajSEt2GHI",
+            authDomain: "gestaodecriacao-ab7e7.firebaseapp.com",
+            projectId: "gestaodecriacao-ab7e7",
+            storageBucket: "gestaodecriacao-ab7e7.firebasestorage.app",
+            messagingSenderId: "431401945312",
+            appId: "1:431401945312:web:12f1c70e38f7208e4a2885"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.firebaseDB = firebase.firestore();
+        window.firebaseDB.settings({ ignoreUndefinedProperties: true });
+    </script>
+
+    <!-- Scripts Core & State Management -->
+    <script src="js/store.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/audit.js?v=2"></script>
+
+    <!-- Modules -->
+    <script src="js/dashboard.js?v=2"></script>
+    <script src="js/tasks.js?v=2"></script>
+    <script src="js/products.js?v=2"></script>
+    <script src="js/kanban.js?v=2"></script>
+    <script src="js/team.js?v=2"></script>
+    <script src="js/approvals.js?v=2"></script>
+    <script src="js/chat.js?v=2"></script>
+
+    <!-- App Initializer -->
+    <script src="js/app.js?v=2"></script>
+</body>
+</html>

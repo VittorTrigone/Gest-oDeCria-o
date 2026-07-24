@@ -1,0 +1,184 @@
+/* ==========================================================================
+   Creative Sector Manager Hub - Team Chat Module
+   ========================================================================== */
+
+class ChatModule {
+    constructor() {
+        this.currentChannel = 'geral';
+        this.init();
+    }
+
+    init() {
+        window.store.subscribe(() => this.render());
+        this.bindEvents();
+        this.render();
+    }
+
+    bindEvents() {
+        // Form send message
+        const form = document.getElementById('chat-form-send');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input-message');
+                if (input && input.value.trim()) {
+                    window.store.addChatMessage(this.currentChannel, input.value.trim());
+                    input.value = '';
+                }
+            });
+        }
+    }
+
+    switchChannel(channelKey, channelLabel) {
+        this.currentChannel = channelKey;
+        window.store.markChannelAsRead(channelKey);
+        
+        // A parte visual de active e badge agora é tratada inteiramente pelo render()
+        // chamando this.render() logo abaixo.
+
+        // Update Channel Title Header
+        const titleEl = document.getElementById('chat-active-channel-title');
+        if (titleEl) titleEl.textContent = channelLabel || `# ${channelKey}`;
+
+        this.render();
+    }
+
+    render() {
+        this.renderDMList();
+
+        // Auto-mark as read if we are already viewing it and new message arrives
+        const tabChat = document.getElementById('tab-chat');
+        if (tabChat && tabChat.classList.contains('active')) {
+            const currentUser = window.store.state.auth.currentUser;
+            if (currentUser) {
+                const readTimestamps = currentUser.chatReadTimestamps || {};
+                const hasUnread = window.store.getChatMessages(this.currentChannel).some(msg => 
+                    msg.senderId !== currentUser.id && (msg.timestampMs || 0) > (readTimestamps[this.currentChannel] || 0)
+                );
+                
+                if (hasUnread) {
+                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel), 10);
+                }
+            }
+        }
+
+        // Update Nav Badge
+        const navBadge = document.getElementById('badge-chat-count');
+        if (navBadge) {
+            const unreadCount = window.store.getUnreadMessagesCount();
+            if (unreadCount > 0) {
+                navBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                navBadge.style.display = 'inline-block';
+            } else {
+                navBadge.style.display = 'none';
+            }
+        }
+
+        // Update active classes and individual channel badges
+        document.querySelectorAll('.chat-channel-item').forEach(item => {
+            const chan = item.getAttribute('data-channel');
+            if (chan === this.currentChannel) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+
+            let badge = item.querySelector('.chat-item-badge');
+            const unreadForChan = window.store.getUnreadCountForChannel(chan);
+            if (unreadForChan > 0 && chan !== this.currentChannel) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'chat-item-badge';
+                    badge.style = 'float: right; background: var(--accent-rose); color: white; border-radius: 10px; padding: 2px 5px; font-size: 0.65rem; font-weight: 800; line-height: 1; margin-top: 1px;';
+                    item.appendChild(badge);
+                }
+                badge.textContent = unreadForChan > 99 ? '99+' : unreadForChan;
+                badge.style.display = 'inline-block';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        });
+
+        const messagesContainer = document.getElementById('chat-messages-body');
+        if (!messagesContainer) return;
+
+        const messages = window.store.getChatMessages(this.currentChannel);
+
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = `
+                <div style="text-align: center; color: var(--text-subdued); padding: 3rem 1rem;">
+                    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">💬</p>
+                    <p style="font-size: 0.9rem; font-weight: 600;">Nenhuma mensagem neste canal ainda.</p>
+                    <p style="font-size: 0.78rem;">Seja o primeiro a enviar um recado para a equipe!</p>
+                </div>
+            `;
+            return;
+        }
+
+        const currentUserId = window.store.state.auth.currentUser ? window.store.state.auth.currentUser.id : 'emp-1';
+        
+        const employees = window.store.getEmployees();
+        
+        messagesContainer.innerHTML = messages.map(msg => {
+            const senderEmp = employees.find(e => e.id === msg.senderId);
+            const senderTitle = senderEmp && senderEmp.role ? `<span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 500; margin-left: 6px; letter-spacing: 0.2px;">${senderEmp.role}</span>` : '';
+            
+            return `
+            <div class="chat-message-item ${msg.senderId === currentUserId ? 'is-me' : ''}">
+                <div class="chat-msg-avatar" style="background: ${msg.avatarBg || 'var(--primary)'}">
+                    ${msg.senderAvatar || '??'}
+                </div>
+                <div class="chat-msg-content">
+                    <div class="chat-msg-header">
+                        <span class="chat-sender-name" style="display: flex; align-items: baseline;">${msg.senderName} ${senderTitle}</span>
+                        <span class="chat-msg-time">${msg.timestamp}</span>
+                    </div>
+                    <div class="chat-msg-bubble">
+                        ${this.escapeHtml(msg.text)}
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+
+        // Auto-scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    renderDMList() {
+        const dmList = document.getElementById('chat-dm-list');
+        if (!dmList) return;
+
+        const currentUser = window.store.state.auth.currentUser;
+        if (!currentUser) return;
+        
+        const currentUserId = currentUser.id;
+        const employees = window.store.getEmployees().filter(emp => emp.id !== currentUserId);
+
+        dmList.innerHTML = employees.map(emp => {
+            const ids = [currentUserId, emp.id].sort();
+            const channelKey = `dm_${ids[0]}_${ids[1]}`;
+            const isActive = this.currentChannel === channelKey ? 'active' : '';
+
+            return `
+                <li class="chat-channel-item ${isActive}" data-channel="${channelKey}" onclick="window.chatModule.switchChannel('${channelKey}', '💬 ${emp.name}')">
+                    <span style="display:inline-block; width:8px; height:8px; background:var(--text-muted); border-radius:50%; margin-right:6px;" title="Offline"></span>
+                    ${emp.name}
+                </li>
+            `;
+        }).join('');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.chatModule = new ChatModule();
+});
