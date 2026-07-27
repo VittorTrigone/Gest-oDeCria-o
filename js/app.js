@@ -81,7 +81,8 @@ class App {
             products: { title: 'Gestão Completa de Produtos', desc: 'Visão unificada de todos os produtos do setor com porcentagem de progresso.' },
             kanban: { title: 'Esteira de Criação & Cadastros', desc: 'Acompanhamento do produto nas 5 etapas: Olist (ERP), Imagens, Precificação, Verificação e Marketplaces.' },
             team: { title: 'Gerenciamento da Equipe & Carga', desc: 'Controle de colaboradores, distribuição de tarefas e medidores de capacidade.' },
-            approvals: { title: 'Central de Aprovações & Avisos', desc: 'Fila de aprovações pendentes da gerência e mural de avisos para a equipe.' },
+            approvals: { title: 'Central de Solicitações & Pendências', desc: 'Fila de solicitações de permissão e aprovações de produtos.' },
+            announcements: { title: 'Mural de Avisos & Comunicados', desc: 'Avisos importantes, metas e recados para o setor.' },
             chat: { title: 'Chat da Equipe & Comunicação', desc: 'Bate-papo interno em tempo real entre o gerente e os colaboradores.' }
         };
 

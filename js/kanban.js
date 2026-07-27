@@ -379,6 +379,8 @@ class KanbanModule {
             productTitle: title,
             requesterId: currentUser.id,
             requesterName: currentUser.name,
+            targetAssigneeId: product ? product.assigneeId : null,
+            targetAssigneeName: product ? product.assigneeName : null,
             status: 'pending',
             date: new Date().toISOString()
         });

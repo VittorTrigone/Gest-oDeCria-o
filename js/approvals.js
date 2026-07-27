@@ -41,28 +41,49 @@ class ApprovalsModule {
         const container = document.getElementById('approvals-list-container');
         if (!container) return;
 
+        const currentUser = window.store.state.auth?.currentUser;
         const approvals = window.store.getApprovals();
-        const editReqs = window.store.state.editRequests.map(r => ({
-            id: r.id,
-            productId: r.productId,
-            productTitle: window.store.getProductById(r.productId)?.title || 'Produto Desconhecido',
-            requesterName: r.requesterName,
-            type: 'Permissão de Edição',
-            details: 'Solicita acesso para editar campos e etapas deste produto.',
-            status: r.status,
-            date: new Date(r.date).toLocaleString(),
-            isEditReq: true
-        }));
+        const editReqs = (window.store.state.editRequests || []).map(r => {
+            const prod = window.store.getProductById(r.productId);
+            const targetAssigneeId = r.targetAssigneeId || (prod ? prod.assigneeId : null);
+            const targetAssigneeName = r.targetAssigneeName || (prod ? prod.assigneeName : 'Ninguém');
+            return {
+                id: r.id,
+                productId: r.productId,
+                productTitle: prod ? prod.title : (r.productTitle || 'Produto Desconhecido'),
+                requesterId: r.requesterId,
+                requesterName: r.requesterName,
+                targetAssigneeId: targetAssigneeId,
+                targetAssigneeName: targetAssigneeName,
+                type: 'Permissão de Edição',
+                details: `Solicita permissão para editar campos e etapas do produto sob responsabilidade de ${targetAssigneeName || 'responsável'}.`,
+                status: r.status,
+                date: new Date(r.date).toLocaleString(),
+                isEditReq: true
+            };
+        });
         
         const allItems = [...approvals, ...editReqs].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        if (allItems.length === 0) {
-            container.innerHTML = `<p style="color: var(--text-subdued); text-align: center; padding: 2rem;">Nenhuma solicitação de aprovação pendente.</p>`;
+        // Filtra solicitações visíveis apenas para os envolvidos (solicitante e dono) e gerência
+        const visibleItems = allItems.filter(item => {
+            if (!currentUser) return false;
+            if (currentUser.role === 'manager') return true;
+            if (item.requesterId === currentUser.id) return true;
+            if (item.targetAssigneeId && item.targetAssigneeId === currentUser.id) return true;
+            return false;
+        });
+
+        if (visibleItems.length === 0) {
+            container.innerHTML = `<p style="color: var(--text-subdued); text-align: center; padding: 2.5rem;">Nenhuma solicitação ou pendência para você.</p>`;
             return;
         }
 
-        container.innerHTML = allItems.map(item => {
+        container.innerHTML = visibleItems.map(item => {
             const isPending = item.status === 'pending';
+            const isTargetOrManager = !currentUser ? false : (currentUser.role === 'manager' || (item.targetAssigneeId && item.targetAssigneeId === currentUser.id));
+            const canApprove = isPending && isTargetOrManager;
+
             const statusBadge = isPending
                 ? `<span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); font-weight: 700;">PENDENTE</span>`
                 : item.status === 'approved'
@@ -91,7 +112,7 @@ class ApprovalsModule {
                         ` : ''}
                     </div>
 
-                    ${isPending ? `
+                    ${canApprove ? `
                         <div class="approval-actions">
                             <button class="btn btn-approve" onclick="window.approvalsModule.${item.isEditReq ? 'handleApproveEdit' : 'handleApprove'}('${item.id}')">
                                 ✅ Aprovar
@@ -100,7 +121,11 @@ class ApprovalsModule {
                                 ❌ Rejeitar
                             </button>
                         </div>
-                    ` : ''}
+                    ` : (isPending ? `
+                        <div style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600; padding: 0.5rem 0.9rem; background: rgba(245, 158, 11, 0.1); border-radius: 6px; align-self: center;">
+                            ⏳ Aguardando aprovação de ${item.targetAssigneeName || 'Responsável'}
+                        </div>
+                    ` : '')}
                 </div>
             `;
         }).join('');

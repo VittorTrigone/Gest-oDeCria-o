@@ -32,14 +32,37 @@ class DashboardModule {
         const launchedEl = document.getElementById('kpi-launched-products');
         if (launchedEl) launchedEl.textContent = launchedCount;
 
-        const pendingApprovals = approvals.filter(a => a.status === 'pending').length;
+        const currentUser = window.store.state.auth?.currentUser;
+        const editReqs = window.store.state.editRequests || [];
+        
+        let myPendingCount = 0;
+        const isVisibleToMe = (item) => {
+            if (item.status !== 'pending') return false;
+            if (!currentUser) return false;
+            if (currentUser.role === 'manager') return true;
+            if (item.requesterId === currentUser.id) return true;
+            const prod = window.store.getProductById(item.productId);
+            const targetId = item.targetAssigneeId || (prod ? prod.assigneeId : null);
+            return targetId === currentUser.id;
+        };
+
+        approvals.forEach(a => { if (isVisibleToMe(a)) myPendingCount++; });
+        editReqs.forEach(r => { if (isVisibleToMe(r)) myPendingCount++; });
+
         const pendingEl = document.getElementById('kpi-pending-approvals');
-        if (pendingEl) pendingEl.textContent = pendingApprovals;
+        if (pendingEl) pendingEl.textContent = myPendingCount;
 
         const sidebarBadge = document.getElementById('badge-approvals-count');
         if (sidebarBadge) {
-            sidebarBadge.textContent = pendingApprovals;
-            sidebarBadge.style.display = pendingApprovals > 0 ? 'inline-block' : 'none';
+            sidebarBadge.textContent = myPendingCount;
+            sidebarBadge.style.display = myPendingCount > 0 ? 'inline-block' : 'none';
+        }
+
+        const announcements = window.store.getAnnouncements();
+        const announcementsBadge = document.getElementById('badge-announcements-count');
+        if (announcementsBadge) {
+            announcementsBadge.textContent = announcements.length;
+            announcementsBadge.style.display = announcements.length > 0 ? 'inline-block' : 'none';
         }
 
         let totalMax = 0;
