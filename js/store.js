@@ -120,7 +120,9 @@ const defaultState = {
 
     stageAssignees: {},
 
-    auditLogs: []
+    auditLogs: [],
+
+    onlineEmployees: {}
 };
 
 class SectorStore {
@@ -151,6 +153,12 @@ class SectorStore {
             // Fallback para caso o Firebase não carregue
             this.state = this.loadStateLocal();
         }
+
+        // Heartbeat de presença online a cada 30 segundos
+        setInterval(() => {
+            this.updateMyPresence();
+            this.notify();
+        }, 30000);
     }
 
     showLoadingOverlay() {
@@ -176,6 +184,8 @@ class SectorStore {
                 // Preserva a autenticação local e funde com dados remotos
                 const currentUser = this.state.auth.currentUser;
                 this.state = { ...defaultState, ...remoteState, auth: { currentUser } };
+                if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
+                this.updateMyPresence(true);
                 
                 // Força atualização das credenciais do gerente principal
                 const manager = this.state.employees.find(e => e.id === 'emp-1');
@@ -216,6 +226,11 @@ class SectorStore {
 
     saveState(newState = this.state) {
         this.state = newState;
+        const currentUser = this.state.auth?.currentUser;
+        if (currentUser) {
+            if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
+            this.state.onlineEmployees[currentUser.id] = Date.now();
+        }
         
         // Salva cache local
         try {
@@ -238,6 +253,52 @@ class SectorStore {
             console.error("Erro crítico ao salvar no Firebase:", error);
             if (window.app) window.app.showToast('Erro ao salvar no banco de dados. Verifique as regras do Firestore.', 'error');
         });
+    }
+
+    updateMyPresence(force = false) {
+        const currentUser = this.state.auth?.currentUser;
+        if (!currentUser) return;
+        if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
+        
+        const now = Date.now();
+        const lastSeen = this.state.onlineEmployees[currentUser.id] || 0;
+        // Atualiza a cada 45 segundos ou se forçado (por ex: na primeira conexão)
+        if (force || (now - lastSeen > 45000)) {
+            this.state.onlineEmployees[currentUser.id] = now;
+            if (this.dbRef) {
+                this.saveToFirebase();
+            }
+        }
+    }
+
+    clearMyPresence() {
+        const currentUser = this.state.auth?.currentUser;
+        if (!currentUser || !this.state.onlineEmployees) return;
+        delete this.state.onlineEmployees[currentUser.id];
+        if (this.dbRef) {
+            this.saveToFirebase();
+        }
+    }
+
+    isEmployeeOnline(empId) {
+        if (!this.state.onlineEmployees) return false;
+        const lastSeen = this.state.onlineEmployees[empId] || 0;
+        // Considera online se o colaborador teve atividade ou heartbeat nos últimos 3 minutos (180.000 ms)
+        return (Date.now() - lastSeen) < 180000;
+    }
+
+    getOnlineOtherEmployeesCount() {
+        const currentUser = this.state.auth?.currentUser;
+        const currentUserId = currentUser ? currentUser.id : null;
+        if (!this.state.onlineEmployees) return 0;
+        
+        let count = 0;
+        (this.state.employees || []).forEach(emp => {
+            if (emp.id !== currentUserId && this.isEmployeeOnline(emp.id)) {
+                count++;
+            }
+        });
+        return count;
     }
 
     subscribe(listener) {

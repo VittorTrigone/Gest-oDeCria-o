@@ -74,6 +74,22 @@ class ChatModule {
             }
         }
 
+        // Update Online Presence Counter (Excluindo o usuário atual)
+        const onlineCountEl = document.getElementById('chat-online-count');
+        if (onlineCountEl && window.store.getOnlineOtherEmployeesCount) {
+            const onlineOtherCount = window.store.getOnlineOtherEmployeesCount();
+            if (onlineOtherCount === 0) {
+                onlineCountEl.textContent = '⚪ Ninguém online';
+                onlineCountEl.style.color = 'var(--text-muted)';
+            } else if (onlineOtherCount === 1) {
+                onlineCountEl.textContent = '🟢 1 online';
+                onlineCountEl.style.color = 'var(--accent-emerald)';
+            } else {
+                onlineCountEl.textContent = `🟢 ${onlineOtherCount} online`;
+                onlineCountEl.style.color = 'var(--accent-emerald)';
+            }
+        }
+
         // Update active classes and individual channel badges
         document.querySelectorAll('.chat-channel-item').forEach(item => {
             const chan = item.getAttribute('data-channel');
@@ -168,10 +184,13 @@ class ChatModule {
             const ids = [currentUserId, emp.id].sort();
             const channelKey = `dm_${ids[0]}_${ids[1]}`;
             const isActive = this.currentChannel === channelKey ? 'active' : '';
+            const isOnline = window.store.isEmployeeOnline ? window.store.isEmployeeOnline(emp.id) : false;
+            const dotColor = isOnline ? 'var(--accent-emerald)' : 'var(--text-muted)';
+            const dotTitle = isOnline ? 'Online' : 'Offline';
 
             return `
                 <li class="chat-channel-item ${isActive}" data-channel="${channelKey}" onclick="window.chatModule.switchChannel('${channelKey}', '💬 ${emp.name}')">
-                    <span style="display:inline-block; width:8px; height:8px; background:var(--text-muted); border-radius:50%; margin-right:6px;" title="Offline"></span>
+                    <span style="display:inline-block; width:8px; height:8px; background:${dotColor}; border-radius:50%; margin-right:6px;" title="${dotTitle}"></span>
                     ${emp.name}
                 </li>
             `;

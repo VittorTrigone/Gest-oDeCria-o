@@ -100,6 +100,9 @@ const Auth = {
         } catch(e) {}
 
         if (window.store && window.store.state && window.store.state.auth) {
+            if (typeof window.store.clearMyPresence === 'function') {
+                window.store.clearMyPresence();
+            }
             window.store.state.auth.currentUser = null;
             window.store.saveState();
         }
