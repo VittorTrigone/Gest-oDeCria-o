@@ -154,15 +154,27 @@ class SectorStore {
             this.state = this.loadStateLocal();
         }
 
-        // Heartbeat de presença online a cada 60 segundos (e 3s após carregamento inicial)
+        // Ao fechar a aba ou sair da página, limpa o status online imediatamente
+        window.addEventListener('beforeunload', () => {
+            this.clearMyPresence();
+        });
+        window.addEventListener('pagehide', () => {
+            this.clearMyPresence();
+        });
+
+        // Heartbeat de presença online a cada 12 segundos enquanto a aba estiver aberta
         setTimeout(() => {
             this.updateMyPresence(true);
-        }, 3000);
+        }, 2000);
 
         setInterval(() => {
             this.updateMyPresence();
+        }, 12000);
+
+        // Atualização contínua da interface visual (dots verde/cinza) a cada 4 segundos
+        setInterval(() => {
             this.notify();
-        }, 60000);
+        }, 4000);
     }
 
     showLoadingOverlay() {
@@ -265,8 +277,8 @@ class SectorStore {
         
         const now = Date.now();
         const lastSeen = this.state.onlineEmployees[currentUser.id] || 0;
-        // Atualiza a cada 45 segundos ou se forçado (por ex: na primeira conexão)
-        if (force || (now - lastSeen > 45000)) {
+        // Atualiza a cada 10 segundos enquanto a aba estiver aberta ou se forçado no login
+        if (force || (now - lastSeen >= 10000)) {
             this.state.onlineEmployees[currentUser.id] = now;
             if (this.dbRef) {
                 this.saveToFirebase();
@@ -286,8 +298,8 @@ class SectorStore {
     isEmployeeOnline(empId) {
         if (!this.state.onlineEmployees) return false;
         const lastSeen = this.state.onlineEmployees[empId] || 0;
-        // Considera online se o colaborador teve atividade ou heartbeat nos últimos 3 minutos (180.000 ms)
-        return (Date.now() - lastSeen) < 180000;
+        // Considera online apenas se teve atividade ou heartbeat com a aba aberta nos últimos 25 segundos
+        return (Date.now() - lastSeen) < 25000;
     }
 
     getOnlineOtherEmployeesCount() {
