@@ -154,11 +154,15 @@ class SectorStore {
             this.state = this.loadStateLocal();
         }
 
-        // Heartbeat de presença online a cada 30 segundos
+        // Heartbeat de presença online a cada 60 segundos (e 3s após carregamento inicial)
+        setTimeout(() => {
+            this.updateMyPresence(true);
+        }, 3000);
+
         setInterval(() => {
             this.updateMyPresence();
             this.notify();
-        }, 30000);
+        }, 60000);
     }
 
     showLoadingOverlay() {
@@ -185,7 +189,6 @@ class SectorStore {
                 const currentUser = this.state.auth.currentUser;
                 this.state = { ...defaultState, ...remoteState, auth: { currentUser } };
                 if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
-                this.updateMyPresence(true);
                 
                 // Força atualização das credenciais do gerente principal
                 const manager = this.state.employees.find(e => e.id === 'emp-1');
