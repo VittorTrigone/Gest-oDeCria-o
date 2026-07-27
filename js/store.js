@@ -715,27 +715,67 @@ class SectorStore {
             this.addAuditLog('EXCLUIR_AVISO', null, null, `Aviso excluído do mural: "${ann.title}"`);
         }
     }
+    getUserReadTimestamps(userId) {
+        let localData = {};
+        try {
+            const raw = localStorage.getItem('sc_read_timestamps_' + userId);
+            if (raw) localData = JSON.parse(raw);
+        } catch (e) {}
+
+        const emp = (this.state.employees || []).find(e => e.id === userId);
+        const currentUser = this.state.auth?.currentUser;
+        const currentData = (currentUser && currentUser.id === userId) ? currentUser : {};
+
+        const announcementsTs = Math.max(
+            localData.announcementsReadTimestamp || 0,
+            emp?.announcementsReadTimestamp || 0,
+            currentData.announcementsReadTimestamp || 0
+        );
+
+        const chatTs = {
+            ...(emp?.chatReadTimestamps || {}),
+            ...(currentData.chatReadTimestamps || {}),
+            ...(localData.chatReadTimestamps || {})
+        };
+
+        return {
+            announcementsReadTimestamp: announcementsTs,
+            chatReadTimestamps: chatTs
+        };
+    }
+
+    saveUserReadTimestamps(userId, data) {
+        try {
+            localStorage.setItem('sc_read_timestamps_' + userId, JSON.stringify(data));
+        } catch (e) {}
+
+        const emp = (this.state.employees || []).find(e => e.id === userId);
+        if (emp) {
+            emp.announcementsReadTimestamp = data.announcementsReadTimestamp;
+            emp.chatReadTimestamps = data.chatReadTimestamps;
+        }
+        const currentUser = this.state.auth?.currentUser;
+        if (currentUser && currentUser.id === userId) {
+            currentUser.announcementsReadTimestamp = data.announcementsReadTimestamp;
+            currentUser.chatReadTimestamps = data.chatReadTimestamps;
+        }
+        this.saveState();
+    }
+
     markAnnouncementsAsRead() {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
         
-        const emp = this.state.employees.find(e => e.id === currentUser.id);
-        const now = Date.now();
-        if (emp) {
-            emp.announcementsReadTimestamp = now;
-        }
-        currentUser.announcementsReadTimestamp = now;
-        this.saveState();
+        const current = this.getUserReadTimestamps(currentUser.id);
+        current.announcementsReadTimestamp = Date.now();
+        this.saveUserReadTimestamps(currentUser.id, current);
     }
     getUnreadAnnouncementsCount() {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return 0;
 
-        const emp = this.state.employees.find(e => e.id === currentUser.id);
-        const readTs = Math.max(
-            currentUser.announcementsReadTimestamp || 0,
-            emp?.announcementsReadTimestamp || 0
-        );
+        const tsData = this.getUserReadTimestamps(currentUser.id);
+        const readTs = tsData.announcementsReadTimestamp || 0;
         const announcements = this.state.announcements || [];
         return announcements.filter(a => {
             const ts = a.timestampMs || (a.date ? Date.parse(a.date) : 1);
@@ -773,30 +813,22 @@ class SectorStore {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
         
-        const emp = this.state.employees.find(e => e.id === currentUser.id);
-        if (emp) {
-            if (!emp.chatReadTimestamps) emp.chatReadTimestamps = {};
-            emp.chatReadTimestamps[channelKey] = Date.now();
-            
-            // Atualiza o currentUser atual também
-            currentUser.chatReadTimestamps = emp.chatReadTimestamps;
-            
-            this.saveState();
-        }
+        const current = this.getUserReadTimestamps(currentUser.id);
+        if (!current.chatReadTimestamps) current.chatReadTimestamps = {};
+        current.chatReadTimestamps[channelKey] = Date.now();
+        this.saveUserReadTimestamps(currentUser.id, current);
     }
 
     getUnreadMessagesCount() {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return 0;
 
-        const readTimestamps = currentUser.chatReadTimestamps || {};
+        const tsData = this.getUserReadTimestamps(currentUser.id);
+        const readTimestamps = tsData.chatReadTimestamps || {};
         let unreadCount = 0;
 
         (this.state.chatMessages || []).forEach(msg => {
-            // Se a msg for do próprio usuário, ignora
             if (msg.senderId === currentUser.id) return;
-            
-            // Se for canal geral ou uma DM envolvendo o usuário
             if (msg.channel.startsWith('dm_') && !msg.channel.includes(currentUser.id)) return;
 
             const msgTime = msg.timestampMs || parseInt(msg.id.split('-')[1]) || 0;
@@ -814,7 +846,8 @@ class SectorStore {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return 0;
 
-        const readTimestamps = currentUser.chatReadTimestamps || {};
+        const tsData = this.getUserReadTimestamps(currentUser.id);
+        const readTimestamps = tsData.chatReadTimestamps || {};
         let unreadCount = 0;
 
         (this.state.chatMessages || []).forEach(msg => {

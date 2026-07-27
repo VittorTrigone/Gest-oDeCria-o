@@ -9,22 +9,22 @@ const Auth = {
 
     checkSession() {
         const currentUser = window.store?.state?.auth?.currentUser;
+        const overlay = document.getElementById('login-overlay');
         if (!currentUser) {
-            // Se não tem ninguem logado, garante que o overlay está ativo (ele já vem ativo no HTML)
-            document.getElementById('login-overlay').classList.add('active');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.classList.add('active');
+            }
         } else {
-            // Se tem alguém logado, remove a tela preta e aplica o profile
-            document.getElementById('login-overlay').classList.remove('active');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
             this.applyUserProfile(currentUser);
         }
     },
 
     handleLogin(e) {
-        // Impede que o formulário recarregue a página
-        if (e) {
-            e.preventDefault();
-        }
-
         const email = document.getElementById('login-email').value.trim();
         const pwd = document.getElementById('login-password').value.trim();
         const errorEl = document.getElementById('login-error');
@@ -32,20 +32,20 @@ const Auth = {
         errorEl.style.display = 'none';
 
         if (!email || !pwd) {
+            if (e) e.preventDefault();
             errorEl.textContent = 'Preencha e-mail e senha.';
             errorEl.style.display = 'block';
-            return;
+            return false;
         }
 
-        // Procura funcionário (usuário)
         const user = window.store.state.employees.find(e => e.email === email);
         if (!user || user.password !== pwd) {
+            if (e) e.preventDefault();
             errorEl.textContent = 'E-mail ou senha incorretos.';
             errorEl.style.display = 'block';
-            return;
+            return false;
         }
 
-        // Tenta salvar credencial no Gerenciador de Senhas do Navegador (Google Chrome / Edge)
         if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
             try {
                 const cred = new window.PasswordCredential({
@@ -59,7 +59,7 @@ const Auth = {
             }
         }
 
-        // Login bem-sucedido
+        const tsData = window.store.getUserReadTimestamps(user.id);
         window.store.state.auth.currentUser = {
             id: user.id,
             name: user.name,
@@ -68,17 +68,22 @@ const Auth = {
             avatar: user.avatar,
             avatarBg: user.avatarBg,
             mustChangePassword: user.mustChangePassword,
-            chatReadTimestamps: user.chatReadTimestamps || {},
-            announcementsReadTimestamp: user.announcementsReadTimestamp || 0
+            chatReadTimestamps: tsData.chatReadTimestamps || {},
+            announcementsReadTimestamp: tsData.announcementsReadTimestamp || 0
         };
         window.store.saveState();
 
+        const overlay = document.getElementById('login-overlay');
         if (user.mustChangePassword) {
             document.getElementById('modal-first-access').classList.add('active');
         } else {
-            document.getElementById('login-overlay').classList.remove('active');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
             this.applyUserProfile(window.store.state.auth.currentUser);
         }
+        return true;
     },
 
     saveNewPassword() {
@@ -106,11 +111,11 @@ const Auth = {
     logout() {
         // Fallback seguro: força a limpeza do usuário logado diretamente no localStorage
         try {
-            const raw = localStorage.getItem('sc_manager_state');
+            const raw = localStorage.getItem('creative_sector_manager_v5');
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (parsed.auth) parsed.auth.currentUser = null;
-                localStorage.setItem('sc_manager_state', JSON.stringify(parsed));
+                localStorage.setItem('creative_sector_manager_v5', JSON.stringify(parsed));
             }
         } catch(e) {}
 
@@ -125,6 +130,7 @@ const Auth = {
         // Em vez de recarregar a página, força o login instantaneamente na tela
         const overlay = document.getElementById('login-overlay');
         if (overlay) {
+            overlay.style.display = 'flex';
             overlay.classList.add('active');
             overlay.style.backgroundColor = '#0f172a'; // Força opacidade
         }
