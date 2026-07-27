@@ -720,17 +720,22 @@ class SectorStore {
         if (!currentUser) return;
         
         const emp = this.state.employees.find(e => e.id === currentUser.id);
+        const now = Date.now();
         if (emp) {
-            emp.announcementsReadTimestamp = Date.now();
-            currentUser.announcementsReadTimestamp = emp.announcementsReadTimestamp;
-            this.saveState();
+            emp.announcementsReadTimestamp = now;
         }
+        currentUser.announcementsReadTimestamp = now;
+        this.saveState();
     }
     getUnreadAnnouncementsCount() {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return 0;
 
-        const readTs = currentUser.announcementsReadTimestamp || 0;
+        const emp = this.state.employees.find(e => e.id === currentUser.id);
+        const readTs = Math.max(
+            currentUser.announcementsReadTimestamp || 0,
+            emp?.announcementsReadTimestamp || 0
+        );
         const announcements = this.state.announcements || [];
         return announcements.filter(a => {
             const ts = a.timestampMs || (a.date ? Date.parse(a.date) : 1);

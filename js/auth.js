@@ -45,6 +45,20 @@ const Auth = {
             return;
         }
 
+        // Tenta salvar credencial no Gerenciador de Senhas do Navegador (Google Chrome / Edge)
+        if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+            try {
+                const cred = new window.PasswordCredential({
+                    id: email,
+                    password: pwd,
+                    name: user.name
+                });
+                navigator.credentials.store(cred);
+            } catch (err) {
+                console.warn('Gerenciador de senhas API:', err);
+            }
+        }
+
         // Login bem-sucedido
         window.store.state.auth.currentUser = {
             id: user.id,
@@ -54,7 +68,8 @@ const Auth = {
             avatar: user.avatar,
             avatarBg: user.avatarBg,
             mustChangePassword: user.mustChangePassword,
-            chatReadTimestamps: user.chatReadTimestamps || {}
+            chatReadTimestamps: user.chatReadTimestamps || {},
+            announcementsReadTimestamp: user.announcementsReadTimestamp || 0
         };
         window.store.saveState();
 
