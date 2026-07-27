@@ -135,6 +135,21 @@ class ApprovalsModule {
         const container = document.getElementById('announcements-grid-container');
         if (!container) return;
 
+        const currentUser = window.store.state.auth?.currentUser;
+        const isManager = currentUser && currentUser.role === 'manager';
+
+        // Exibe ou oculta o botão '+ Novo Aviso' com base na permissão de gerente
+        const btnAdd = document.getElementById('btn-add-announcement');
+        if (btnAdd) {
+            btnAdd.style.display = isManager ? 'inline-block' : 'none';
+        }
+
+        // Se a aba do mural de avisos está ativa, marca avisos como lidos
+        const tabAnn = document.getElementById('tab-announcements');
+        if (tabAnn && tabAnn.classList.contains('active')) {
+            setTimeout(() => window.store.markAnnouncementsAsRead(), 10);
+        }
+
         const announcements = window.store.getAnnouncements();
 
         if (announcements.length === 0) {
@@ -153,9 +168,11 @@ class ApprovalsModule {
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
                     <span>Por: <strong>${ann.author}</strong> (${ann.date})</span>
-                    <button style="background: none; border: none; color: var(--accent-rose); cursor: pointer;" onclick="window.approvalsModule.deleteAnnouncement('${ann.id}')">
-                        Excluir
-                    </button>
+                    ${isManager ? `
+                        <button style="background: none; border: none; color: var(--accent-rose); cursor: pointer;" onclick="window.approvalsModule.deleteAnnouncement('${ann.id}')">
+                            Excluir
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
@@ -222,6 +239,12 @@ class ApprovalsModule {
     }
 
     handleCreateAnnouncement(form) {
+        const currentUser = window.store.state.auth?.currentUser;
+        if (!currentUser || currentUser.role !== 'manager') {
+            if (window.app) window.app.showToast('Apenas o gerente pode publicar avisos!', 'error');
+            return;
+        }
+
         const formData = new FormData(form);
         const title = formData.get('title');
         const content = formData.get('content');
@@ -242,6 +265,12 @@ class ApprovalsModule {
     }
 
     deleteAnnouncement(id) {
+        const currentUser = window.store.state.auth?.currentUser;
+        if (!currentUser || currentUser.role !== 'manager') {
+            if (window.app) window.app.showToast('Apenas o gerente pode excluir avisos!', 'error');
+            return;
+        }
+
         if (confirm('Excluir este comunicado?')) {
             window.store.deleteAnnouncement(id);
             if (window.app) window.app.showToast('Comunicado removido.', 'info');

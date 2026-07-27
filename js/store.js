@@ -697,6 +697,7 @@ class SectorStore {
         const newAnn = {
             id: 'ann-' + Date.now(),
             date: new Date().toISOString().split('T')[0],
+            timestampMs: Date.now(),
             author: 'Vittor (Gerente)',
             priority: 'normal',
             ...annData
@@ -713,6 +714,28 @@ class SectorStore {
             this.saveState();
             this.addAuditLog('EXCLUIR_AVISO', null, null, `Aviso excluído do mural: "${ann.title}"`);
         }
+    }
+    markAnnouncementsAsRead() {
+        const currentUser = this.state.auth.currentUser;
+        if (!currentUser) return;
+        
+        const emp = this.state.employees.find(e => e.id === currentUser.id);
+        if (emp) {
+            emp.announcementsReadTimestamp = Date.now();
+            currentUser.announcementsReadTimestamp = emp.announcementsReadTimestamp;
+            this.saveState();
+        }
+    }
+    getUnreadAnnouncementsCount() {
+        const currentUser = this.state.auth.currentUser;
+        if (!currentUser) return 0;
+
+        const readTs = currentUser.announcementsReadTimestamp || 0;
+        const announcements = this.state.announcements || [];
+        return announcements.filter(a => {
+            const ts = a.timestampMs || (a.date ? Date.parse(a.date) : 1);
+            return ts > readTs;
+        }).length;
     }
 
     // --- TEAM CHAT ---

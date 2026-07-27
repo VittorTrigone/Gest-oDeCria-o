@@ -56,6 +56,10 @@ class App {
     switchTab(tabId) {
         if (!tabId) return;
 
+        if (tabId === 'announcements' && window.store && window.store.markAnnouncementsAsRead) {
+            window.store.markAnnouncementsAsRead();
+        }
+
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.getAttribute('data-tab') === tabId) {
                 item.classList.add('active');

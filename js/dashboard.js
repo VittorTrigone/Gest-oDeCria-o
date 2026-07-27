@@ -58,11 +58,11 @@ class DashboardModule {
             sidebarBadge.style.display = myPendingCount > 0 ? 'inline-block' : 'none';
         }
 
-        const announcements = window.store.getAnnouncements();
+        const unreadAnnouncements = window.store.getUnreadAnnouncementsCount ? window.store.getUnreadAnnouncementsCount() : 0;
         const announcementsBadge = document.getElementById('badge-announcements-count');
         if (announcementsBadge) {
-            announcementsBadge.textContent = announcements.length;
-            announcementsBadge.style.display = announcements.length > 0 ? 'inline-block' : 'none';
+            announcementsBadge.textContent = unreadAnnouncements;
+            announcementsBadge.style.display = unreadAnnouncements > 0 ? 'inline-block' : 'none';
         }
 
         let totalMax = 0;
