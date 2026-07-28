@@ -226,12 +226,13 @@ class ProductsModule {
     }
 
     openProductOverviewModal(productId) {
-        const product = window.store.getProductById(productId);
-        if (!product) return;
+        try {
+            const product = window.store.getProductById(productId);
+            if (!product) return;
 
-        const modal = document.getElementById('modal-product-overview');
-        const body = document.getElementById('product-overview-body');
-        if (!modal || !body) return;
+            const modal = document.getElementById('modal-product-overview');
+            const body = document.getElementById('product-overview-body');
+            if (!modal || !body) return;
 
         const isMgr = window.store.isManager();
         const progress = window.store.calculateProductProgress(product);
@@ -498,6 +499,10 @@ class ProductsModule {
         `;
 
         window.app.openModal('modal-product-overview');
+        } catch (err) {
+            console.error('Erro ao abrir visão geral do produto:', err);
+            if (window.app) window.app.showToast('Erro ao abrir visualização do produto.', 'error');
+        }
     }
 
     saveOverviewGeneralInfo(productId) {
