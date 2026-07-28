@@ -225,11 +225,18 @@ class KanbanModule {
 
         container.ondrop = (e) => {
             e.preventDefault();
+            e.stopPropagation();
             container.style.background = 'transparent';
-            const prodId = e.dataTransfer.getData('text/plain') || this.draggedProductId;
+
+            if (this.isDropping) return;
+            this.isDropping = true;
+            setTimeout(() => { this.isDropping = false; }, 500);
+
+            const prodId = (e.dataTransfer ? e.dataTransfer.getData('text/plain') : null) || this.draggedProductId;
             if (prodId) {
                 const product = window.store.getProductById(prodId);
                 if (product && product.stage !== stage) {
+                    this.draggedProductId = null;
                     window.store.updateProductStage(prodId, stage);
                     if (window.app) window.app.showToast('Produto movido de etapa!', 'success');
                 }
