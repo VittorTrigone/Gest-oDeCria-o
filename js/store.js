@@ -353,7 +353,8 @@ class SectorStore {
             performanceRating: 5.0,
             email: empData.email || '',
             sysRole: 'employee',
-            password: '123'
+            password: empData.password || '12345',
+            mustChangePassword: empData.mustChangePassword !== undefined ? empData.mustChangePassword : true
         };
         this.state.employees.push(newEmp);
         this.saveState();
