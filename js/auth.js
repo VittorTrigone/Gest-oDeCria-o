@@ -38,12 +38,20 @@ const Auth = {
             return false;
         }
 
-        const user = window.store.state.employees.find(e => e.email === email);
-        if (!user || user.password !== pwd) {
+        const user = window.store.state.employees.find(e => (e.email || '').trim().toLowerCase() === email.toLowerCase());
+        const userPwd = user?.password || '12345';
+        const isDefaultPwdMatch = (pwd === '12345' && (userPwd === '12345' || userPwd === '123'));
+        
+        if (!user || (!isDefaultPwdMatch && user.password !== pwd)) {
             if (e) e.preventDefault();
             errorEl.textContent = 'E-mail ou senha incorretos.';
             errorEl.style.display = 'block';
             return false;
+        }
+
+        if (isDefaultPwdMatch) {
+            user.password = '12345';
+            if (user.mustChangePassword === undefined) user.mustChangePassword = true;
         }
 
         if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {

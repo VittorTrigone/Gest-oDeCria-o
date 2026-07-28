@@ -209,6 +209,12 @@ class SectorStore {
                     manager.password = 'Vittor381*';
                     manager.email = 'vittor@emporioctz.com.br';
                 }
+                (this.state.employees || []).forEach(emp => {
+                    if (emp.id !== 'emp-1' && (!emp.password || emp.password === '123')) {
+                        emp.password = '12345';
+                        if (emp.mustChangePassword === undefined) emp.mustChangePassword = true;
+                    }
+                });
             } else {
                 // Documento não existe, usar o default
                 this.saveToFirebase();
@@ -233,6 +239,14 @@ class SectorStore {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 const parsed = JSON.parse(stored);
+                if (parsed.employees) {
+                    parsed.employees.forEach(emp => {
+                        if (emp.id !== 'emp-1' && (!emp.password || emp.password === '123')) {
+                            emp.password = '12345';
+                            if (emp.mustChangePassword === undefined) emp.mustChangePassword = true;
+                        }
+                    });
+                }
                 return { ...defaultState, ...parsed, auth: parsed.auth || defaultState.auth };
             }
         } catch (e) {}
