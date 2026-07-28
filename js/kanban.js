@@ -163,9 +163,10 @@ class KanbanModule {
         const priorityLabels = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
         const emp = window.store.getEmployeeById(product.assigneeId);
         const avatarStr = emp ? emp.avatar : '??';
+        const isManager = window.store.isManager();
 
         return `
-            <div class="product-card" draggable="true" data-product-id="${product.id}" onclick="window.kanbanModule.openProductDetailModal('${product.id}')">
+            <div class="product-card" ${isManager ? 'draggable="true"' : 'draggable="false"'} data-product-id="${product.id}" onclick="window.kanbanModule.openProductDetailModal('${product.id}')" ${!isManager ? 'style="cursor: pointer;"' : ''}>
                 <div class="product-card-header">
                     <h4 class="product-title">${product.title}</h4>
                     <span class="badge-priority priority-${product.priority}">${priorityLabels[product.priority] || product.priority}</span>
@@ -198,37 +199,42 @@ class KanbanModule {
     }
 
     setupDragAndDropEvents(container, stage) {
+        if (!window.store.isManager()) return;
+
         container.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('dragstart', (e) => {
+            card.ondragstart = (e) => {
                 this.draggedProductId = card.getAttribute('data-product-id');
                 e.dataTransfer.setData('text/plain', this.draggedProductId);
                 card.style.opacity = '0.5';
-            });
+            };
 
-            card.addEventListener('dragend', () => {
+            card.ondragend = () => {
                 card.style.opacity = '1';
                 this.draggedProductId = null;
-            });
+            };
         });
 
-        container.addEventListener('dragover', (e) => {
+        container.ondragover = (e) => {
             e.preventDefault();
             container.style.background = 'rgba(99, 102, 241, 0.05)';
-        });
+        };
 
-        container.addEventListener('dragleave', () => {
+        container.ondragleave = () => {
             container.style.background = 'transparent';
-        });
+        };
 
-        container.addEventListener('drop', (e) => {
+        container.ondrop = (e) => {
             e.preventDefault();
             container.style.background = 'transparent';
             const prodId = e.dataTransfer.getData('text/plain') || this.draggedProductId;
             if (prodId) {
-                window.store.updateProductStage(prodId, stage);
-                if (window.app) window.app.showToast('Produto movido de etapa!', 'success');
+                const product = window.store.getProductById(prodId);
+                if (product && product.stage !== stage) {
+                    window.store.updateProductStage(prodId, stage);
+                    if (window.app) window.app.showToast('Produto movido de etapa!', 'success');
+                }
             }
-        });
+        };
     }
 
     handleCreateProduct(form) {
