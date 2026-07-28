@@ -31,7 +31,7 @@ class ChatModule {
 
     switchChannel(channelKey, channelLabel) {
         this.currentChannel = channelKey;
-        window.store.markChannelAsRead(channelKey);
+        window.store.markChannelAsRead(channelKey, true);
         
         // A parte visual de active e badge agora é tratada inteiramente pelo render()
         // chamando this.render() logo abaixo.
@@ -57,7 +57,7 @@ class ChatModule {
                 );
                 
                 if (hasUnread) {
-                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel), 10);
+                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel, true), 10);
                 }
             }
         }
@@ -180,21 +180,48 @@ class ChatModule {
         const currentUserId = currentUser.id;
         const employees = window.store.getEmployees().filter(emp => emp.id !== currentUserId);
 
-        dmList.innerHTML = employees.map(emp => {
-            const ids = [currentUserId, emp.id].sort();
-            const channelKey = `dm_${ids[0]}_${ids[1]}`;
-            const isActive = this.currentChannel === channelKey ? 'active' : '';
-            const isOnline = window.store.isEmployeeOnline ? window.store.isEmployeeOnline(emp.id) : false;
-            const dotColor = isOnline ? 'var(--accent-emerald)' : 'var(--text-muted)';
-            const dotTitle = isOnline ? 'Online' : 'Offline';
+        const currentIds = Array.from(dmList.querySelectorAll('.chat-channel-item')).map(el => el.getAttribute('data-emp-id')).join(',');
+        const newIds = employees.map(emp => emp.id).join(',');
 
-            return `
-                <li class="chat-channel-item ${isActive}" data-channel="${channelKey}" onclick="window.chatModule.switchChannel('${channelKey}', '💬 ${emp.name}')">
-                    <span style="display:inline-block; width:8px; height:8px; background:${dotColor}; border-radius:50%; margin-right:6px;" title="${dotTitle}"></span>
-                    ${emp.name}
-                </li>
-            `;
-        }).join('');
+        if (currentIds !== newIds) {
+            dmList.innerHTML = employees.map(emp => {
+                const ids = [currentUserId, emp.id].sort();
+                const channelKey = `dm_${ids[0]}_${ids[1]}`;
+                const isActive = this.currentChannel === channelKey ? 'active' : '';
+                const isOnline = window.store.isEmployeeOnline ? window.store.isEmployeeOnline(emp.id) : false;
+                const dotColor = isOnline ? 'var(--accent-emerald)' : 'var(--text-muted)';
+                const dotTitle = isOnline ? 'Online' : 'Offline';
+
+                return `
+                    <li class="chat-channel-item ${isActive}" data-channel="${channelKey}" data-emp-id="${emp.id}" onclick="window.chatModule.switchChannel('${channelKey}', '💬 ${this.escapeHtml(emp.name)}')">
+                        <span class="dm-online-dot" style="display:inline-block; width:8px; height:8px; background:${dotColor}; border-radius:50%; flex-shrink:0; margin-right:6px;" title="${dotTitle}"></span>
+                        <div style="display:flex; flex-direction:column; line-height:1.2; overflow:hidden;">
+                            <span style="font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${emp.name}</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-weight:400;">${emp.role || 'Colaborador'}</span>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        } else {
+            employees.forEach(emp => {
+                const ids = [currentUserId, emp.id].sort();
+                const channelKey = `dm_${ids[0]}_${ids[1]}`;
+                const li = dmList.querySelector(`.chat-channel-item[data-emp-id="${emp.id}"]`);
+                if (li) {
+                    if (this.currentChannel === channelKey) {
+                        li.classList.add('active');
+                    } else {
+                        li.classList.remove('active');
+                    }
+                    const dot = li.querySelector('.dm-online-dot');
+                    const isOnline = window.store.isEmployeeOnline ? window.store.isEmployeeOnline(emp.id) : false;
+                    if (dot) {
+                        dot.style.background = isOnline ? 'var(--accent-emerald)' : 'var(--text-muted)';
+                        dot.title = isOnline ? 'Online' : 'Offline';
+                    }
+                }
+            });
+        }
     }
 }
 

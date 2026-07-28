@@ -155,7 +155,8 @@ class TeamModule {
             password: '12345',
             sysRole: 'employee',
             mustChangePassword: true,
-            avatar: name.charAt(0).toUpperCase()
+            avatar: name.charAt(0).toUpperCase(),
+            createdAt: Date.now()
         };
 
         window.store.addEmployee(newEmp);

@@ -368,7 +368,8 @@ class SectorStore {
             email: empData.email || '',
             sysRole: 'employee',
             password: empData.password || '12345',
-            mustChangePassword: empData.mustChangePassword !== undefined ? empData.mustChangePassword : true
+            mustChangePassword: empData.mustChangePassword !== undefined ? empData.mustChangePassword : true,
+            createdAt: empData.createdAt || Date.now()
         };
         this.state.employees.push(newEmp);
         this.saveState();
@@ -741,10 +742,13 @@ class SectorStore {
         const currentUser = this.state.auth?.currentUser;
         const currentData = (currentUser && currentUser.id === userId) ? currentUser : {};
 
+        const minTs = (emp && emp.createdAt) ? emp.createdAt : (emp?.id && emp.id.startsWith('emp-') && emp.id !== 'emp-1' ? parseInt(emp.id.replace('emp-', '')) || 0 : 0);
+
         const announcementsTs = Math.max(
             localData.announcementsReadTimestamp || 0,
             emp?.announcementsReadTimestamp || 0,
-            currentData.announcementsReadTimestamp || 0
+            currentData.announcementsReadTimestamp || 0,
+            minTs
         );
 
         const chatTs = {
@@ -759,7 +763,7 @@ class SectorStore {
         };
     }
 
-    saveUserReadTimestamps(userId, data) {
+    saveUserReadTimestamps(userId, data, silent = false) {
         try {
             localStorage.setItem('sc_read_timestamps_' + userId, JSON.stringify(data));
         } catch (e) {}
@@ -774,7 +778,9 @@ class SectorStore {
             currentUser.announcementsReadTimestamp = data.announcementsReadTimestamp;
             currentUser.chatReadTimestamps = data.chatReadTimestamps;
         }
-        this.saveState();
+        if (!silent) {
+            this.saveState();
+        }
     }
 
     markAnnouncementsAsRead() {
@@ -824,14 +830,27 @@ class SectorStore {
         return newMsg;
     }
 
-    markChannelAsRead(channelKey) {
+    markChannelAsRead(channelKey, silent = false) {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
         
         const current = this.getUserReadTimestamps(currentUser.id);
         if (!current.chatReadTimestamps) current.chatReadTimestamps = {};
-        current.chatReadTimestamps[channelKey] = Date.now();
-        this.saveUserReadTimestamps(currentUser.id, current);
+        
+        const now = Date.now();
+        const msgs = this.getChatMessages(channelKey);
+        let maxMsgTs = now;
+        msgs.forEach(m => {
+            const ts = m.timestampMs || (m.id ? parseInt(m.id.split('-')[1]) : 0) || 0;
+            if (ts > maxMsgTs) maxMsgTs = ts + 10;
+        });
+
+        if (current.chatReadTimestamps[channelKey] && current.chatReadTimestamps[channelKey] >= maxMsgTs) {
+            return;
+        }
+
+        current.chatReadTimestamps[channelKey] = maxMsgTs;
+        this.saveUserReadTimestamps(currentUser.id, current, silent);
     }
 
     getUnreadMessagesCount() {
@@ -840,6 +859,8 @@ class SectorStore {
 
         const tsData = this.getUserReadTimestamps(currentUser.id);
         const readTimestamps = tsData.chatReadTimestamps || {};
+        const emp = (this.state.employees || []).find(e => e.id === currentUser.id);
+        const minTs = (emp && emp.createdAt) ? emp.createdAt : (emp?.id && emp.id.startsWith('emp-') && emp.id !== 'emp-1' ? parseInt(emp.id.replace('emp-', '')) || 0 : 0);
         let unreadCount = 0;
 
         (this.state.chatMessages || []).forEach(msg => {
@@ -847,7 +868,7 @@ class SectorStore {
             if (msg.channel.startsWith('dm_') && !msg.channel.includes(currentUser.id)) return;
 
             const msgTime = msg.timestampMs || parseInt(msg.id.split('-')[1]) || 0;
-            const lastRead = readTimestamps[msg.channel] || 0;
+            const lastRead = Math.max(readTimestamps[msg.channel] || 0, minTs);
 
             if (msgTime > lastRead) {
                 unreadCount++;
@@ -863,6 +884,8 @@ class SectorStore {
 
         const tsData = this.getUserReadTimestamps(currentUser.id);
         const readTimestamps = tsData.chatReadTimestamps || {};
+        const emp = (this.state.employees || []).find(e => e.id === currentUser.id);
+        const minTs = (emp && emp.createdAt) ? emp.createdAt : (emp?.id && emp.id.startsWith('emp-') && emp.id !== 'emp-1' ? parseInt(emp.id.replace('emp-', '')) || 0 : 0);
         let unreadCount = 0;
 
         (this.state.chatMessages || []).forEach(msg => {
@@ -870,7 +893,7 @@ class SectorStore {
             if (msg.senderId === currentUser.id) return;
 
             const msgTime = msg.timestampMs || parseInt(msg.id.split('-')[1]) || 0;
-            const lastRead = readTimestamps[channelKey] || 0;
+            const lastRead = Math.max(readTimestamps[channelKey] || 0, minTs);
 
             if (msgTime > lastRead) {
                 unreadCount++;
