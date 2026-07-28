@@ -659,21 +659,45 @@ class KanbanModule {
 
     handleToggleOlist(productId, groupKey, itemKey) {
         window.store.toggleOlistCheckitem(productId, groupKey, itemKey);
+        if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
+            if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
+                window.productsModule.openProductOverviewModal(productId);
+                return;
+            }
+        }
         this.openProductDetailModal(productId);
     }
 
     handleToggleImgCheck(productId, itemKey) {
         window.store.toggleImageCheckitem(productId, itemKey);
+        if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
+            if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
+                window.productsModule.openProductOverviewModal(productId);
+                return;
+            }
+        }
         this.openProductDetailModal(productId);
     }
 
     handleToggleMktDisabled(productId, mktKey) {
         window.store.toggleMarketplaceDisabled(productId, mktKey);
+        if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
+            if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
+                window.productsModule.openProductOverviewModal(productId);
+                return;
+            }
+        }
         this.openProductDetailModal(productId);
     }
 
     handleToggleMktCheck(productId, mktKey, subPath) {
         window.store.toggleMarketplaceCheckitem(productId, mktKey, subPath);
+        if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
+            if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
+                window.productsModule.openProductOverviewModal(productId);
+                return;
+            }
+        }
         this.openProductDetailModal(productId);
     }
 
