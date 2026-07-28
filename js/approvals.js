@@ -144,12 +144,6 @@ class ApprovalsModule {
             btnAdd.style.display = isManager ? 'inline-block' : 'none';
         }
 
-        // Se a aba do mural de avisos está ativa, marca avisos como lidos
-        const tabAnn = document.getElementById('tab-announcements');
-        if (tabAnn && tabAnn.classList.contains('active')) {
-            setTimeout(() => window.store.markAnnouncementsAsRead(), 10);
-        }
-
         const announcements = window.store.getAnnouncements();
 
         if (announcements.length === 0) {

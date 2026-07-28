@@ -797,7 +797,7 @@ class SectorStore {
         }
     }
 
-    markAnnouncementsAsRead() {
+    markAnnouncementsAsRead(silent = true) {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
         
@@ -808,7 +808,7 @@ class SectorStore {
 
         const current = this.getUserReadTimestamps(currentUser.id);
         current.announcementsReadTimestamp = Math.max(Date.now(), maxAnnTs + 1000);
-        this.saveUserReadTimestamps(currentUser.id, current);
+        this.saveUserReadTimestamps(currentUser.id, current, silent);
     }
     getUnreadAnnouncementsCount() {
         const currentUser = this.state.auth.currentUser;
@@ -872,7 +872,7 @@ class SectorStore {
         this.saveUserReadTimestamps(currentUser.id, current, silent);
     }
 
-    markAllChatAsRead(silent = false) {
+    markAllChatAsRead(silent = true) {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
 

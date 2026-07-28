@@ -57,10 +57,10 @@ class App {
         if (!tabId) return;
 
         if (tabId === 'announcements' && window.store && window.store.markAnnouncementsAsRead) {
-            window.store.markAnnouncementsAsRead();
+            window.store.markAnnouncementsAsRead(true);
         }
         if (tabId === 'chat' && window.store) {
-            if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(false);
+            if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(true);
             if (window.chatModule) window.chatModule.render();
         }
 
@@ -101,8 +101,11 @@ class App {
 
         // Trigger hooks for specific tabs
         if (tabId === 'chat' && window.chatModule) {
-            window.store.markChannelAsRead(window.chatModule.currentChannel);
+            window.store.markChannelAsRead(window.chatModule.currentChannel, true);
             window.chatModule.render();
+        }
+        if (tabId === 'announcements' && window.approvalsModule) {
+            window.approvalsModule.render();
         }
     }
 

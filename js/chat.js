@@ -46,20 +46,6 @@ class ChatModule {
     render() {
         this.renderDMList();
 
-        // Auto-mark as read if we are already viewing it and new message arrives
-        const tabChat = document.getElementById('tab-chat');
-        if (tabChat && tabChat.classList.contains('active')) {
-            const currentUser = window.store.state.auth.currentUser;
-            if (currentUser) {
-                const unreadCount = window.store.getUnreadMessagesCount();
-                if (unreadCount > 0) {
-                    setTimeout(() => {
-                        if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(false);
-                    }, 10);
-                }
-            }
-        }
-
         // Update Nav Badge
         const navBadge = document.getElementById('badge-chat-count');
         const chatTabEl = document.querySelector('li[data-tab="chat"]');
