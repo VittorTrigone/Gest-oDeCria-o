@@ -59,6 +59,9 @@ class App {
         if (tabId === 'announcements' && window.store && window.store.markAnnouncementsAsRead) {
             window.store.markAnnouncementsAsRead();
         }
+        if (tabId === 'chat' && window.store && window.chatModule) {
+            window.store.markChannelAsRead(window.chatModule.currentChannel || 'geral', false);
+        }
 
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.getAttribute('data-tab') === tabId) {

@@ -31,7 +31,7 @@ class ChatModule {
 
     switchChannel(channelKey, channelLabel) {
         this.currentChannel = channelKey;
-        window.store.markChannelAsRead(channelKey, true);
+        window.store.markChannelAsRead(channelKey, false);
         
         // A parte visual de active e badge agora é tratada inteiramente pelo render()
         // chamando this.render() logo abaixo.
@@ -57,7 +57,7 @@ class ChatModule {
                 );
                 
                 if (hasUnread) {
-                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel, true), 10);
+                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel, false), 10);
                 }
             }
         }
