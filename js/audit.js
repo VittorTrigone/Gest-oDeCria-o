@@ -66,6 +66,11 @@ class AuditModule {
         const container = document.getElementById('audit-global-list');
         if (!container) return;
 
+        if (!window.store.isManager()) {
+            container.innerHTML = '<p style="color: var(--accent-rose); text-align: center; padding: 2rem;">Acesso restrito a gerentes.</p>';
+            return;
+        }
+
         const logs = window.store.state.auditLogs || [];
         
         if (logs.length === 0) {

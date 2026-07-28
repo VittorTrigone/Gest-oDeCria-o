@@ -39,7 +39,7 @@ class DashboardModule {
         const isVisibleToMe = (item) => {
             if (item.status !== 'pending') return false;
             if (!currentUser) return false;
-            if (currentUser.role === 'manager') return true;
+            if (window.store.isManager(currentUser)) return true;
             if (item.requesterId === currentUser.id) return true;
             const prod = window.store.getProductById(item.productId);
             const targetId = item.targetAssigneeId || (prod ? prod.assigneeId : null);
@@ -53,16 +53,20 @@ class DashboardModule {
         if (pendingEl) pendingEl.textContent = myPendingCount;
 
         const sidebarBadge = document.getElementById('badge-approvals-count');
+        const approvalsTabEl = document.querySelector('li[data-tab="approvals"]');
         if (sidebarBadge) {
             sidebarBadge.textContent = myPendingCount;
             sidebarBadge.style.display = myPendingCount > 0 ? 'inline-block' : 'none';
+            if (approvalsTabEl) approvalsTabEl.classList.toggle('has-unread', myPendingCount > 0);
         }
 
         const unreadAnnouncements = window.store.getUnreadAnnouncementsCount ? window.store.getUnreadAnnouncementsCount() : 0;
         const announcementsBadge = document.getElementById('badge-announcements-count');
+        const announcementsTabEl = document.querySelector('li[data-tab="announcements"]');
         if (announcementsBadge) {
             announcementsBadge.textContent = unreadAnnouncements;
             announcementsBadge.style.display = unreadAnnouncements > 0 ? 'inline-block' : 'none';
+            if (announcementsTabEl) announcementsTabEl.classList.toggle('has-unread', unreadAnnouncements > 0);
         }
 
         let totalMax = 0;

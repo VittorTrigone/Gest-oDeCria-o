@@ -36,6 +36,15 @@ class TeamModule {
         const container = document.getElementById('team-grid-container');
         if (!container) return;
 
+        const cu = window.store.state.auth?.currentUser;
+        const isManager = cu && (cu.sysRole === 'manager' || cu.role === 'manager' || cu.id === 'emp-1');
+
+        const addBtn = document.querySelector('#tab-team button[onclick*="modal-add-employee"]');
+        if (addBtn) addBtn.style.display = isManager ? 'inline-flex' : 'none';
+
+        const stageSection = document.getElementById('stage-config-section');
+        if (stageSection) stageSection.style.display = isManager ? 'block' : 'none';
+
         const employees = window.store.getEmployees();
         const products = window.store.getProducts();
 
@@ -104,6 +113,7 @@ class TeamModule {
                         </div>
                     </div>
 
+                    ${isManager ? `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.85rem; margin-top: auto;">
                         <span style="font-size: 0.78rem; color: var(--text-muted);">
                             Avaliação: <strong style="color: var(--accent-amber);">⭐ ${emp.performanceRating || '5.0'}</strong>
@@ -125,12 +135,24 @@ class TeamModule {
                             ` : ''}
                         </div>
                     </div>
+                    ` : ''}
                 </div>
             `;
         }).join('');
     }
 
+    checkIsManager() {
+        const cu = window.store.state.auth?.currentUser;
+        const isMgr = cu && (cu.sysRole === 'manager' || cu.role === 'manager' || cu.id === 'emp-1');
+        if (!isMgr) {
+            if (window.app) window.app.showToast('Apenas gerentes podem realizar esta ação.', 'error');
+            return false;
+        }
+        return true;
+    }
+
     handleCreateEmployee(form) {
+        if (!this.checkIsManager()) return;
         const formData = new FormData(form);
         const name = formData.get('name');
         const role = formData.get('role');
@@ -169,6 +191,7 @@ class TeamModule {
     }
 
     deleteEmployee(id, name) {
+        if (!this.checkIsManager()) return;
         if (confirm(`Tem certeza absoluta que deseja EXCLUIR o colaborador ${name}?\nIsso removerá ele da equipe permanentemente.`)) {
             window.store.deleteEmployee(id);
             if (window.app) window.app.showToast(`Colaborador ${name} foi excluído da equipe.`, 'success');
@@ -176,6 +199,7 @@ class TeamModule {
     }
 
     handleDeleteEmployee(id) {
+        if (!this.checkIsManager()) return;
         if (!confirm('Tem certeza que deseja remover este colaborador?')) return;
 
         window.store.deleteEmployee(id);
@@ -183,6 +207,7 @@ class TeamModule {
     }
 
     openEditEmployee(id) {
+        if (!this.checkIsManager()) return;
         const emp = window.store.getEmployeeById(id);
         if (!emp) return;
 
@@ -197,6 +222,7 @@ class TeamModule {
     }
 
     handleUpdateEmployee(form) {
+        if (!this.checkIsManager()) return;
         const formData = new FormData(form);
         const id = formData.get('id');
         const name = formData.get('name');
@@ -250,11 +276,13 @@ class TeamModule {
     }
 
     changeStageAssignee(stageId, employeeId) {
+        if (!this.checkIsManager()) return;
         window.store.updateStageAssignee(stageId, employeeId);
         if (window.app) window.app.showToast('Configuração de etapa atualizada!', 'success');
     }
 
     resetEmployeePassword(empId) {
+        if (!this.checkIsManager()) return;
         if (!confirm('Tem certeza que deseja resetar a senha deste funcionário para 12345?')) return;
         
         const empIndex = window.store.state.employees.findIndex(e => e.id === empId);
@@ -277,6 +305,7 @@ class TeamModule {
     }
 
     evaluateEmployee(id) {
+        if (!this.checkIsManager()) return;
         const emp = window.store.getEmployeeById(id);
         if (!emp) return;
 

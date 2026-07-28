@@ -64,6 +64,7 @@ class ChatModule {
 
         // Update Nav Badge
         const navBadge = document.getElementById('badge-chat-count');
+        const chatTabEl = document.querySelector('li[data-tab="chat"]');
         if (navBadge) {
             const unreadCount = window.store.getUnreadMessagesCount();
             if (unreadCount > 0) {
@@ -72,6 +73,7 @@ class ChatModule {
             } else {
                 navBadge.style.display = 'none';
             }
+            if (chatTabEl) chatTabEl.classList.toggle('has-unread', unreadCount > 0);
         }
 
         // Update Online Presence Counter (Excluindo o usuário atual)

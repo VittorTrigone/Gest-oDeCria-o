@@ -163,9 +163,11 @@ class ProductsModule {
                             <span>${(() => {
                                 let label = product.assigneeName || 'Não atribuído';
                                 if (product.allowedEditors && product.allowedEditors.length > 0) {
-                                    const extraNames = product.allowedEditors.map(id => window.store.getEmployeeById(id)?.name).filter(Boolean);
+                                    const extraNames = product.allowedEditors
+                                        .map(id => window.store.getEmployeeById(id)?.name)
+                                        .filter(name => name && !label.includes(name));
                                     if (extraNames.length > 0) {
-                                        label += ' + ' + extraNames.join(', ');
+                                        label += ', ' + extraNames.join(', ');
                                     }
                                 }
                                 return label;
@@ -177,7 +179,7 @@ class ProductsModule {
                     </td>
                     <td onclick="event.stopPropagation();">
                         <div style="display: flex; gap: 0.5rem;">
-                            ${window.store.state.auth.currentUser && window.store.state.auth.currentUser.role === 'manager' ? `
+                            ${window.store.isManager() ? `
                             <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="window.auditModule.openProductHistory('${product.id}')">
                                 📜 Histórico
                             </button>

@@ -281,7 +281,7 @@ class KanbanModule {
         const nextStageName = (!isLastStage && !isCompleted) ? stageNames[stageOrder[currentStageIdx + 1]] : null;
 
         const currentUser = window.store.state.auth.currentUser;
-        const canEdit = !currentUser || currentUser.role === 'manager' || currentUser.id === product.assigneeId || (product.allowedEditors && product.allowedEditors.includes(currentUser.id));
+        const canEdit = !currentUser || window.store.isManager(currentUser) || currentUser.id === product.assigneeId || (product.allowedEditors && product.allowedEditors.includes(currentUser.id));
         const hasRequested = window.store.state.editRequests && window.store.state.editRequests.some(r => r.productId === product.id && r.requesterId === currentUser?.id && r.status === 'pending');
 
         // Stage Progress Bar Header
@@ -338,7 +338,7 @@ class KanbanModule {
                         ${hasRequested ? '⏳ Permissão Solicitada' : 'Solicitar Permissão de Edição'}
                     </button>
                 ` : `
-                    ${window.store.state.auth.currentUser && window.store.state.auth.currentUser.role === 'manager' ? `
+                    ${window.store.isManager() ? `
                     <button type="button" class="btn btn-secondary" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3);" onclick="window.kanbanModule.handleDeleteProductFromModal('${product.id}')">
                         🗑️ Excluir
                     </button>

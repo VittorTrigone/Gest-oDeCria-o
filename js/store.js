@@ -342,6 +342,12 @@ class SectorStore {
         this.saveState();
     }
 
+    isManager(user) {
+        const u = user || this.state.auth?.currentUser;
+        if (!u) return false;
+        return u.sysRole === 'manager' || u.id === 'emp-1';
+    }
+
     // --- EMPLOYEES CRUD ---
     getEmployees() { return this.state.employees; }
     getEmployeeById(id) {
@@ -751,11 +757,19 @@ class SectorStore {
             minTs
         );
 
-        const chatTs = {
-            ...(emp?.chatReadTimestamps || {}),
-            ...(currentData.chatReadTimestamps || {}),
-            ...(localData.chatReadTimestamps || {})
-        };
+        const allChatChannels = new Set([
+            ...Object.keys(emp?.chatReadTimestamps || {}),
+            ...Object.keys(currentData.chatReadTimestamps || {}),
+            ...Object.keys(localData.chatReadTimestamps || {})
+        ]);
+        const chatTs = {};
+        allChatChannels.forEach(ch => {
+            chatTs[ch] = Math.max(
+                (emp?.chatReadTimestamps || {})[ch] || 0,
+                (currentData.chatReadTimestamps || {})[ch] || 0,
+                (localData.chatReadTimestamps || {})[ch] || 0
+            );
+        });
 
         return {
             announcementsReadTimestamp: announcementsTs,
@@ -787,8 +801,13 @@ class SectorStore {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
         
+        const maxAnnTs = (this.state.announcements || []).reduce((max, a) => {
+            const ts = a.timestampMs || (a.date ? Date.parse(a.date) : 0);
+            return Math.max(max, ts);
+        }, 0);
+
         const current = this.getUserReadTimestamps(currentUser.id);
-        current.announcementsReadTimestamp = Date.now();
+        current.announcementsReadTimestamp = Math.max(Date.now(), maxAnnTs + 1000);
         this.saveUserReadTimestamps(currentUser.id, current);
     }
     getUnreadAnnouncementsCount() {

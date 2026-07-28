@@ -82,16 +82,18 @@ const Auth = {
         };
         window.store.saveState();
 
-        const overlay = document.getElementById('login-overlay');
-        if (user.mustChangePassword) {
-            document.getElementById('modal-first-access').classList.add('active');
-        } else {
-            if (overlay) {
-                overlay.classList.remove('active');
-                overlay.style.display = 'none';
+        setTimeout(() => {
+            const overlay = document.getElementById('login-overlay');
+            if (user.mustChangePassword) {
+                document.getElementById('modal-first-access').classList.add('active');
+            } else {
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    overlay.style.display = 'none';
+                }
+                this.applyUserProfile(window.store.state.auth.currentUser);
             }
-            this.applyUserProfile(window.store.state.auth.currentUser);
-        }
+        }, 150);
         return true;
     },
 
@@ -172,17 +174,23 @@ const Auth = {
             avatarEl.textContent = user.avatar;
             avatarEl.style.background = user.avatarBg;
             nameEl.textContent = user.name;
-            roleEl.textContent = user.role === 'manager' ? 'Gerente' : 'Funcionário';
+            const isMgr = window.store.isManager(user);
+            roleEl.textContent = isMgr ? 'Gerente' : 'Funcionário';
         }
 
-        // Esconde abas de Gerente caso seja funcionário
-        if (user.role === 'employee') {
+        const isManager = window.store.isManager(user);
+        const logoSubtitle = document.querySelector('.logo-text span');
+        if (logoSubtitle) {
+            logoSubtitle.textContent = isManager ? 'Painel do Gerente' : 'Painel da Equipe';
+        }
+
+        if (!isManager) {
             const dashboardNav = document.querySelector('li[data-tab="dashboard"]');
             const teamNav = document.querySelector('li[data-tab="team"]');
             const auditNav = document.querySelector('li[data-tab="audit"]');
             
             if (dashboardNav) dashboardNav.style.display = 'none';
-            if (teamNav) teamNav.style.display = 'none';
+            if (teamNav) teamNav.style.display = 'flex';
             if (auditNav) auditNav.style.display = 'none';
 
             // Oculta botões exclusivos de gerente (Novo Produto)
@@ -198,9 +206,14 @@ const Auth = {
             }
 
             // Redireciona para Produtos caso esteja em uma aba restrita
+            const activeTab = document.querySelector('.nav-item.active');
+            if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'audit')) {
+                const productsTab = document.querySelector('li[data-tab="products"]');
+                if (productsTab) productsTab.click();
+            }
             setTimeout(() => {
                 const activeTab = document.querySelector('.nav-item.active');
-                if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'team')) {
+                if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'audit')) {
                     const productsTab = document.querySelector('li[data-tab="products"]');
                     if (productsTab) productsTab.click();
                 }

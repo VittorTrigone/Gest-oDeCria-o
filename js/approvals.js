@@ -68,7 +68,7 @@ class ApprovalsModule {
         // Filtra solicitações visíveis apenas para os envolvidos (solicitante e dono) e gerência
         const visibleItems = allItems.filter(item => {
             if (!currentUser) return false;
-            if (currentUser.role === 'manager') return true;
+            if (window.store.isManager(currentUser)) return true;
             if (item.requesterId === currentUser.id) return true;
             if (item.targetAssigneeId && item.targetAssigneeId === currentUser.id) return true;
             return false;
@@ -81,7 +81,7 @@ class ApprovalsModule {
 
         container.innerHTML = visibleItems.map(item => {
             const isPending = item.status === 'pending';
-            const isTargetOrManager = !currentUser ? false : (currentUser.role === 'manager' || (item.targetAssigneeId && item.targetAssigneeId === currentUser.id));
+            const isTargetOrManager = !currentUser ? false : (window.store.isManager(currentUser) || (item.targetAssigneeId && item.targetAssigneeId === currentUser.id));
             const canApprove = isPending && isTargetOrManager;
 
             const statusBadge = isPending
@@ -136,7 +136,7 @@ class ApprovalsModule {
         if (!container) return;
 
         const currentUser = window.store.state.auth?.currentUser;
-        const isManager = currentUser && currentUser.role === 'manager';
+        const isManager = window.store.isManager(currentUser);
 
         // Exibe ou oculta o botão '+ Novo Aviso' com base na permissão de gerente
         const btnAdd = document.getElementById('btn-add-announcement');
@@ -240,7 +240,7 @@ class ApprovalsModule {
 
     handleCreateAnnouncement(form) {
         const currentUser = window.store.state.auth?.currentUser;
-        if (!currentUser || currentUser.role !== 'manager') {
+        if (!window.store.isManager(currentUser)) {
             if (window.app) window.app.showToast('Apenas o gerente pode publicar avisos!', 'error');
             return;
         }
@@ -266,7 +266,7 @@ class ApprovalsModule {
 
     deleteAnnouncement(id) {
         const currentUser = window.store.state.auth?.currentUser;
-        if (!currentUser || currentUser.role !== 'manager') {
+        if (!window.store.isManager(currentUser)) {
             if (window.app) window.app.showToast('Apenas o gerente pode excluir avisos!', 'error');
             return;
         }
