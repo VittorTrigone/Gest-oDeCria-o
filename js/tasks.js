@@ -156,7 +156,7 @@ class TasksModule {
         }
 
         // Render Personal Todo Tasks
-        const personalTasksContainer = document.getElementById('task-personal-todos-container');
+        const personalTasksContainer = document.getElementById('task-personal-list-container');
         if (personalTasksContainer) {
             const personalCountEl = document.getElementById('task-personal-count');
             if (personalCountEl) personalCountEl.textContent = pendingPersonalCount;

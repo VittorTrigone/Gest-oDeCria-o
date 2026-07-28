@@ -872,6 +872,27 @@ class SectorStore {
         this.saveUserReadTimestamps(currentUser.id, current, silent);
     }
 
+    markAllChatAsRead(silent = false) {
+        const currentUser = this.state.auth.currentUser;
+        if (!currentUser) return;
+
+        const current = this.getUserReadTimestamps(currentUser.id);
+        if (!current.chatReadTimestamps) current.chatReadTimestamps = {};
+
+        const now = Date.now() + 1000;
+        (this.state.chatMessages || []).forEach(m => {
+            if (m.channel) {
+                current.chatReadTimestamps[m.channel] = Math.max(
+                    current.chatReadTimestamps[m.channel] || 0,
+                    now,
+                    (m.timestampMs || 0) + 10
+                );
+            }
+        });
+
+        this.saveUserReadTimestamps(currentUser.id, current, silent);
+    }
+
     getUnreadMessagesCount() {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return 0;

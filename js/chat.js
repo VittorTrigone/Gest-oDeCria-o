@@ -51,13 +51,11 @@ class ChatModule {
         if (tabChat && tabChat.classList.contains('active')) {
             const currentUser = window.store.state.auth.currentUser;
             if (currentUser) {
-                const readTimestamps = currentUser.chatReadTimestamps || {};
-                const hasUnread = window.store.getChatMessages(this.currentChannel).some(msg => 
-                    msg.senderId !== currentUser.id && (msg.timestampMs || 0) > (readTimestamps[this.currentChannel] || 0)
-                );
-                
-                if (hasUnread) {
-                    setTimeout(() => window.store.markChannelAsRead(this.currentChannel, false), 10);
+                const unreadCount = window.store.getUnreadMessagesCount();
+                if (unreadCount > 0) {
+                    setTimeout(() => {
+                        if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(false);
+                    }, 10);
                 }
             }
         }

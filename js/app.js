@@ -59,8 +59,9 @@ class App {
         if (tabId === 'announcements' && window.store && window.store.markAnnouncementsAsRead) {
             window.store.markAnnouncementsAsRead();
         }
-        if (tabId === 'chat' && window.store && window.chatModule) {
-            window.store.markChannelAsRead(window.chatModule.currentChannel || 'geral', false);
+        if (tabId === 'chat' && window.store) {
+            if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(false);
+            if (window.chatModule) window.chatModule.render();
         }
 
         document.querySelectorAll('.nav-item').forEach(item => {
