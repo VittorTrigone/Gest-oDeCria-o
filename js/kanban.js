@@ -175,14 +175,15 @@ class KanbanModule {
                     <span>• ${product.category}</span>
                 </div>
                 <div class="product-card-footer">
-                    <div class="assignee-pill">
-                        <div class="mini-avatar" style="background: ${emp ? emp.avatarBg : 'var(--primary)'}">${avatarStr}</div>
+                    <div class="assignee-pill" style="padding-left: 0.6rem;">
                         <span>${(() => {
                             let label = product.assigneeName || 'Não atribuído';
                             if (product.allowedEditors && product.allowedEditors.length > 0) {
-                                const extraNames = product.allowedEditors.map(id => window.store.getEmployeeById(id)?.name).filter(Boolean);
+                                const extraNames = product.allowedEditors
+                                    .map(id => window.store.getEmployeeById(id)?.name)
+                                    .filter(name => name && !label.includes(name));
                                 if (extraNames.length > 0) {
-                                    label += ' + ' + extraNames.join(', ');
+                                    label += ', ' + extraNames.join(', ');
                                 }
                             }
                             return label;
@@ -321,7 +322,18 @@ class KanbanModule {
                 </div>
                 <div>
                     <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-subdued); font-weight: 700;">Responsável:</span>
-                    <p style="font-size: 0.88rem; color: var(--accent-cyan); font-weight: 700; margin-top: 4px;">👤 ${emp ? emp.name : 'Ninguém'}</p>
+                    <p style="font-size: 0.88rem; color: var(--accent-cyan); font-weight: 700; margin-top: 4px;">👤 ${(() => {
+                        let label = emp ? emp.name : 'Ninguém';
+                        if (product.allowedEditors && product.allowedEditors.length > 0) {
+                            const extraNames = product.allowedEditors
+                                .map(id => window.store.getEmployeeById(id)?.name)
+                                .filter(name => name && !label.includes(name));
+                            if (extraNames.length > 0) {
+                                label += ', ' + extraNames.join(', ');
+                            }
+                        }
+                        return label;
+                    })()}</p>
                 </div>
             </div>
 

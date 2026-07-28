@@ -158,8 +158,7 @@ class ProductsModule {
                         </div>
                     </td>
                     <td>
-                        <div class="assignee-pill">
-                            <div class="mini-avatar" style="background: ${avatarBg}">${avatarStr}</div>
+                        <div class="assignee-pill" style="padding-left: 0.6rem;">
                             <span>${(() => {
                                 let label = product.assigneeName || 'Não atribuído';
                                 if (product.allowedEditors && product.allowedEditors.length > 0) {
