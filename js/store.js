@@ -22,8 +22,7 @@ const createDefaultOlistChecklist = () => ({
     dadosComplementares: {
         categoria: false,
         marca: false,
-        descricao: false,
-        imagens: false
+        descricao: false
     },
     outros: {
         unidadePorCaixa: false,
@@ -32,23 +31,29 @@ const createDefaultOlistChecklist = () => ({
     }
 });
 
-// Helper to create Image Checklist (Etapa 2)
-const createDefaultImageChecklist = () => ({
-    fotosEstudio: false,
-    mockup3D: false,
-    fundoNeutro: false,
-    tratamento4k: false,
-    vinculoOlist: false
-});
+// Helper to create Image Checklist (Etapa 2 - Imagem 1 a Imagem 13)
+const createDefaultImageChecklist = () => {
+    const list = {};
+    for (let i = 1; i <= 13; i++) {
+        list[`img_${i}`] = false;
+    }
+    return list;
+};
 
 // Helper to create Marketplaces Pricing Table (Etapa 3)
 const createDefaultChannelPrices = () => ({
     shopee1: 0,
+    shopee1_promo: 0,
     shopee2: 0,
+    shopee2_promo: 0,
     mercadolivre1_classico: 0,
+    mercadolivre1_classico_promo: 0,
     mercadolivre1_premium: 0,
+    mercadolivre1_premium_promo: 0,
     mercadolivre2_classico: 0,
+    mercadolivre2_classico_promo: 0,
     mercadolivre2_premium: 0,
+    mercadolivre2_premium_promo: 0,
     magalu1: 0,
     magalu2: 0,
     amazon: 0,
@@ -527,26 +532,35 @@ class SectorStore {
         
         if (product.stage === 'olist_setup') {
             if (!product.checklistOlist) return false;
-            let total = 18, checked = 0;
-            Object.values(product.checklistOlist).forEach(group => {
-                if (group) Object.values(group).forEach(v => { if (v) checked++; });
+            let total = 0, checked = 0;
+            ['dadosGerais', 'dadosComplementares', 'outros'].forEach(g => {
+                if (product.checklistOlist[g]) {
+                    Object.keys(product.checklistOlist[g]).forEach(k => {
+                        if (k === 'imagens' && g === 'dadosComplementares') return;
+                        total++;
+                        if (product.checklistOlist[g][k]) checked++;
+                    });
+                }
             });
-            return checked === total;
+            return total > 0 && checked === total;
         } 
         else if (product.stage === 'images') {
             if (!product.checklistImages) return false;
-            let total = 5, checked = 0;
-            Object.values(product.checklistImages).forEach(v => { if (v) checked++; });
+            let total = 13, checked = 0;
+            for (let i = 1; i <= 13; i++) {
+                if (product.checklistImages[`img_${i}`]) checked++;
+            }
             return checked === total;
         } 
         else if (product.stage === 'pricing') {
             if (!product.channelPrices) return false;
-            let total = 12, filled = 0;
-            Object.values(product.channelPrices).forEach(v => { if (v > 0) filled++; });
-            return filled === total;
+            const req = ['shopee1', 'shopee2', 'mercadolivre1_classico', 'mercadolivre1_premium', 'mercadolivre2_classico', 'mercadolivre2_premium', 'magalu1', 'magalu2', 'amazon', 'shein', 'tiktok', 'yampi'];
+            let filled = 0;
+            req.forEach(k => { if (product.channelPrices[k] > 0) filled++; });
+            return filled === req.length;
         } 
         else if (product.stage === 'verification') {
-            return true; // No checklist for verification
+            return !!product.verificationChecked;
         } 
         else if (product.stage === 'marketplaces') {
             if (!product.marketplaces) return false;
@@ -579,23 +593,27 @@ class SectorStore {
             let total = 0, checked = 0;
             ['dadosGerais', 'dadosComplementares', 'outros'].forEach(g => {
                 if (product.checklistOlist[g]) {
-                    Object.values(product.checklistOlist[g]).forEach(v => {
+                    Object.keys(product.checklistOlist[g]).forEach(k => {
+                        if (k === 'imagens' && g === 'dadosComplementares') return;
                         total++;
-                        if (v) checked++;
+                        if (product.checklistOlist[g][k]) checked++;
                     });
                 }
             });
             bonus = total > 0 ? (checked / total) * 20 : 0;
         } else if (product.stage === 'images' && product.checklistImages) {
-            let total = 5, checked = 0;
-            Object.values(product.checklistImages).forEach(v => { if (v) checked++; });
+            let total = 13, checked = 0;
+            for (let i = 1; i <= 13; i++) {
+                if (product.checklistImages[`img_${i}`]) checked++;
+            }
             bonus = (checked / total) * 20;
         } else if (product.stage === 'pricing' && product.channelPrices) {
-            let total = 12, filled = 0;
-            Object.values(product.channelPrices).forEach(v => { if (v > 0) filled++; });
+            const req = ['shopee1', 'shopee2', 'mercadolivre1_classico', 'mercadolivre1_premium', 'mercadolivre2_classico', 'mercadolivre2_premium', 'magalu1', 'magalu2', 'amazon', 'shein', 'tiktok', 'yampi'];
+            let total = req.length, filled = 0;
+            req.forEach(k => { if (product.channelPrices[k] > 0) filled++; });
             bonus = (filled / total) * 20;
         } else if (product.stage === 'verification') {
-            bonus = 15;
+            bonus = product.verificationChecked ? 20 : 0;
         } else if (product.stage === 'marketplaces' && product.marketplaces) {
             let total = 10, count = 0;
             Object.values(product.marketplaces).forEach(m => {
@@ -636,11 +654,22 @@ class SectorStore {
 
     toggleImageCheckitem(productId, itemKey) {
         const product = this.getProductById(productId);
-        if (product && product.checklistImages) {
+        if (product) {
+            if (!product.checklistImages) product.checklistImages = {};
             product.checklistImages[itemKey] = !product.checklistImages[itemKey];
             this.saveState();
             const checkedStr = product.checklistImages[itemKey] ? 'marcada' : 'desmarcada';
             this.addAuditLog('ALTERAR_CHECKLIST', product.id, product.title, `Foto/Mídia (${itemKey}) foi ${checkedStr}.`);
+        }
+    }
+
+    toggleVerificationCheck(productId) {
+        const product = this.getProductById(productId);
+        if (product) {
+            product.verificationChecked = !product.verificationChecked;
+            this.saveState();
+            const checkedStr = product.verificationChecked ? 'conferido e validado' : 'desmarcado';
+            this.addAuditLog('ALTERAR_CHECKLIST', product.id, product.title, `Verificação Geral do produto foi ${checkedStr}.`);
         }
     }
 

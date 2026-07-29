@@ -433,25 +433,22 @@ class KanbanModule {
 
         if (product.stage === 'images') {
             const imgCheck = product.checklistImages || {};
-            const labels = {
-                fotosEstudio: 'Fotos de Estúdio Produzidas',
-                mockup3D: 'Renders / Mockups 3D Gerados',
-                fundoNeutro: 'Fundo Branco / Neutro Configurado',
-                tratamento4k: 'Tratamento de Imagem 4K Concluído',
-                vinculoOlist: 'Imagens Vinculadas no Cadastro Olist'
-            };
+            const imgKeys = [];
+            for (let i = 1; i <= 13; i++) {
+                imgKeys.push({ k: `img_${i}`, label: `Imagem ${i}` });
+            }
 
             return `
                 <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">
                     🖼️ Etapa 2: Criação & Tratamento de Imagens
                 </h3>
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Confira a produção visual completa do produto antes da precificação.</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Confira a produção visual das 13 imagens do produto antes da precificação.</p>
 
                 <div class="checklist-card">
-                    ${Object.keys(labels).map(k => `
-                        <div class="checklist-item ${imgCheck[k] ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleImgCheck('${product.id}', '${k}')">
-                            <div class="checklist-checkbox">${imgCheck[k] ? '✓' : ''}</div>
-                            <span>${labels[k]}</span>
+                    ${imgKeys.map(item => `
+                        <div class="checklist-item ${imgCheck[item.k] ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleImgCheck('${product.id}', '${item.k}')">
+                            <div class="checklist-checkbox">${imgCheck[item.k] ? '✓' : ''}</div>
+                            <span>${item.label}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -461,18 +458,18 @@ class KanbanModule {
         if (product.stage === 'pricing') {
             const prices = product.channelPrices || {};
             const channels = [
-                { k: 'shopee1', label: 'Shopee 1' },
-                { k: 'shopee2', label: 'Shopee 2' },
-                { k: 'mercadolivre1_classico', label: 'Mercado Livre 1 (Clássico)' },
-                { k: 'mercadolivre1_premium', label: 'Mercado Livre 1 (Premium)' },
-                { k: 'mercadolivre2_classico', label: 'Mercado Livre 2 (Clássico)' },
-                { k: 'mercadolivre2_premium', label: 'Mercado Livre 2 (Premium)' },
-                { k: 'magalu1', label: 'Magalu 1' },
-                { k: 'magalu2', label: 'Magalu 2' },
-                { k: 'amazon', label: 'Amazon' },
-                { k: 'shein', label: 'Shein' },
-                { k: 'tiktok', label: 'TikTok' },
-                { k: 'yampi', label: 'Yampi' }
+                { k: 'shopee1', label: 'Shopee 1', hasPromo: true },
+                { k: 'shopee2', label: 'Shopee 2', hasPromo: true },
+                { k: 'mercadolivre1_classico', label: 'Mercado Livre 1 (Clássico)', hasPromo: true },
+                { k: 'mercadolivre1_premium', label: 'Mercado Livre 1 (Premium)', hasPromo: true },
+                { k: 'mercadolivre2_classico', label: 'Mercado Livre 2 (Clássico)', hasPromo: true },
+                { k: 'mercadolivre2_premium', label: 'Mercado Livre 2 (Premium)', hasPromo: true },
+                { k: 'magalu1', label: 'Magalu 1', hasPromo: false },
+                { k: 'magalu2', label: 'Magalu 2', hasPromo: false },
+                { k: 'amazon', label: 'Amazon', hasPromo: false },
+                { k: 'shein', label: 'Shein', hasPromo: false },
+                { k: 'tiktok', label: 'TikTok', hasPromo: false },
+                { k: 'yampi', label: 'Yampi', hasPromo: false }
             ];
 
             return `
@@ -481,11 +478,27 @@ class KanbanModule {
                 </h3>
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Insira os preços de venda calculados especificamente para cada canal de venda.</p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.85rem;">
                     ${channels.map(ch => `
                         <div style="background: var(--bg-card-solid); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                            <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">${ch.label}</label>
-                            <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.6rem; font-size: 0.9rem; font-weight: 700; color: var(--accent-emerald);" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}', this.value)">
+                            <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">${ch.label}</label>
+                            ${ch.hasPromo ? `
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div>
+                                        <span style="font-size: 0.68rem; color: var(--text-subdued); display: block; margin-bottom: 2px;">Normal</span>
+                                        <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-emerald);" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}', this.value)">
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.68rem; color: var(--accent-rose); display: block; margin-bottom: 2px;">Promoção</span>
+                                        <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}_promo" value="${Number(prices[ch.k + '_promo'] || 0).toFixed(2)}" style="padding: 0.4rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-rose);" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}_promo', this.value)">
+                                    </div>
+                                </div>
+                            ` : `
+                                <div>
+                                    <span style="font-size: 0.68rem; color: var(--text-subdued); display: block; margin-bottom: 2px;">Normal</span>
+                                    <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.6rem; font-size: 0.9rem; font-weight: 700; color: var(--accent-emerald);" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}', this.value)">
+                                </div>
+                            `}
                         </div>
                     `).join('')}
                 </div>
@@ -493,22 +506,7 @@ class KanbanModule {
         }
 
         if (product.stage === 'verification') {
-            return `
-                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-amber);">
-                    🔍 Etapa 4: Verificação Geral & Aprovação do Gerente
-                </h3>
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Revise os dados cadastrados na Olist e a tabela de preços antes da liberação final.</p>
-
-                <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 1rem;">
-                    <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem;">Resumo da Ficha Olist:</h4>
-                    <p style="font-size: 0.82rem; color: var(--accent-cyan); font-weight: 600;">✔️ Ficha Técnica, Pesos, Dimensões e EAN revisados.</p>
-                </div>
-
-                <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                    <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem;">Resumo da Tabela de Preços:</h4>
-                    <p style="font-size: 0.82rem; color: var(--accent-emerald); font-weight: 600;">✔️ Preço base: R$ ${Number(product.suggestedPrice || 0).toFixed(2)} | Margem conferida com concorrentes.</p>
-                </div>
-            `;
+            return this.renderVerificationHTML(product);
         }
 
         if (product.stage === 'marketplaces') {
@@ -544,7 +542,7 @@ class KanbanModule {
             unidadeMedida: 'Unidade de Medida', sku: 'SKU', precoVenda: 'Preço de Venda',
             pesoLiqBruto: 'Peso Liq e Bruto', largura: 'Largura', altura: 'Altura', comprimento: 'Comprimento'
         };
-        const labelsComplementares = { categoria: 'Categoria', marca: 'Marca', descricao: 'Descrição', imagens: 'Imagens' };
+        const labelsComplementares = { categoria: 'Categoria', marca: 'Marca', descricao: 'Descrição' };
         const labelsOutros = { unidadePorCaixa: 'Unidade por Caixa', garantia: 'Garantia', fornecedor: 'Fornecedor' };
 
         const buildCheckGroup = (groupKey, titleIcon, titleLabel, labelMap) => {
@@ -572,6 +570,98 @@ class KanbanModule {
                 ${buildCheckGroup('dadosGerais', 'ℹ️', 'Dados Gerais', labelsGerais)}
                 ${buildCheckGroup('dadosComplementares', '≡+', 'Dados Complementares', labelsComplementares)}
                 ${buildCheckGroup('outros', '⋯', 'Outros', labelsOutros)}
+            </div>
+        `;
+    }
+
+    renderVerificationHTML(product) {
+        const olist = product.checklistOlist || {};
+        let totalOlist = 0, checkedOlist = 0;
+        ['dadosGerais', 'dadosComplementares', 'outros'].forEach(g => {
+            if (olist[g]) {
+                Object.keys(olist[g]).forEach(k => {
+                    if (k === 'imagens' && g === 'dadosComplementares') return;
+                    totalOlist++;
+                    if (olist[g][k]) checkedOlist++;
+                });
+            }
+        });
+
+        const imgCheck = product.checklistImages || {};
+        let totalImg = 13, checkedImg = 0;
+        const imgBadges = [];
+        for (let i = 1; i <= 13; i++) {
+            const checked = !!imgCheck[`img_${i}`];
+            if (checked) checkedImg++;
+            imgBadges.push(`<span class="badge-stage ${checked ? 'badge-emerald' : 'badge-slate'}" style="font-size: 0.72rem; margin: 2px;">Img ${i}: ${checked ? '✓' : '✗'}</span>`);
+        }
+
+        const prices = product.channelPrices || {};
+        const channels = [
+            { k: 'shopee1', label: 'Shopee 1', hasPromo: true },
+            { k: 'shopee2', label: 'Shopee 2', hasPromo: true },
+            { k: 'mercadolivre1_classico', label: 'Mercado Livre 1 (Clássico)', hasPromo: true },
+            { k: 'mercadolivre1_premium', label: 'Mercado Livre 1 (Premium)', hasPromo: true },
+            { k: 'mercadolivre2_classico', label: 'Mercado Livre 2 (Clássico)', hasPromo: true },
+            { k: 'mercadolivre2_premium', label: 'Mercado Livre 2 (Premium)', hasPromo: true },
+            { k: 'magalu1', label: 'Magalu 1', hasPromo: false },
+            { k: 'magalu2', label: 'Magalu 2', hasPromo: false },
+            { k: 'amazon', label: 'Amazon', hasPromo: false },
+            { k: 'shein', label: 'Shein', hasPromo: false },
+            { k: 'tiktok', label: 'TikTok', hasPromo: false },
+            { k: 'yampi', label: 'Yampi', hasPromo: false }
+        ];
+
+        return `
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-amber);">
+                🔍 Etapa 4: Verificação Geral & Aprovação do Gerente
+            </h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Confira todos os dados cadastrados nas etapas anteriores e marque a verificação de aprovação ao final.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">📋 Resumo Etapa 1: Cadastro Olist (ERP)</h4>
+                        <span class="badge-stage ${checkedOlist === totalOlist && totalOlist > 0 ? 'badge-emerald' : 'badge-amber'}">${checkedOlist}/${totalOlist} itens preenchidos</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ficha técnica, EAN, pesos, dimensões e dados complementares conferidos no cadastro Olist.</p>
+                </div>
+
+                <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">🖼️ Resumo Etapa 2: Criação de Imagens (Imagem 1 a 13)</h4>
+                        <span class="badge-stage ${checkedImg === totalImg ? 'badge-emerald' : 'badge-amber'}">${checkedImg}/${totalImg} imagens prontas</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.5rem;">
+                        ${imgBadges.join('')}
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">💰 Resumo Etapa 3: Precificação por Canal</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem;">
+                        ${channels.map(ch => {
+                            const normalVal = Number(prices[ch.k] || 0).toFixed(2);
+                            const promoVal = Number(prices[ch.k + '_promo'] || 0).toFixed(2);
+                            return `
+                                <div style="background: var(--bg-card); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.78rem;">
+                                    <strong style="color: var(--text-main); display: block; margin-bottom: 2px;">${ch.label}</strong>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: var(--accent-emerald); font-weight: 700;">Normal: R$ ${normalVal}</span>
+                                        ${ch.hasPromo ? `<span style="color: var(--accent-rose); font-weight: 700;">Promo: R$ ${promoVal}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-sm); padding: 1rem;">
+                <div class="checklist-item ${product.verificationChecked ? 'checked' : ''}" style="margin: 0;" onclick="window.kanbanModule.handleToggleVerificationCheck('${product.id}')">
+                    <div class="checklist-checkbox">${product.verificationChecked ? '✓' : ''}</div>
+                    <span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-amber);">Marcar produto como Conferido & Validado para publicação</span>
+                </div>
             </div>
         `;
     }
@@ -683,6 +773,17 @@ class KanbanModule {
 
     handleToggleImgCheck(productId, itemKey) {
         window.store.toggleImageCheckitem(productId, itemKey);
+        if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
+            if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
+                window.productsModule.openProductOverviewModal(productId);
+                return;
+            }
+        }
+        this.openProductDetailModal(productId);
+    }
+
+    handleToggleVerificationCheck(productId) {
+        window.store.toggleVerificationCheck(productId);
         if (document.getElementById('modal-product-overview')?.classList.contains('active')) {
             if (window.productsModule && typeof window.productsModule.openProductOverviewModal === 'function') {
                 window.productsModule.openProductOverviewModal(productId);

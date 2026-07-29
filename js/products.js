@@ -379,13 +379,10 @@ class ProductsModule {
 
         // 4) ETAPA 2: CRIAÇÃO DE IMAGENS
         const imgCheck = product.checklistImages || {};
-        const imgLabels = {
-            fotosEstudio: 'Fotos de Estúdio Produzidas',
-            mockup3D: 'Renders / Mockups 3D Gerados',
-            fundoNeutro: 'Fundo Branco / Neutro Configurado',
-            tratamento4k: 'Tratamento de Imagem 4K Concluído',
-            vinculoOlist: 'Imagens Vinculadas no Cadastro Olist'
-        };
+        const imgKeys = [];
+        for (let i = 1; i <= 13; i++) {
+            imgKeys.push({ k: `img_${i}`, label: `Imagem ${i}` });
+        }
         const stage2HTML = `
             <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
@@ -395,10 +392,10 @@ class ProductsModule {
                     <span class="badge-stage badge-indigo">Produção Visual</span>
                 </div>
                 <div class="checklist-card" style="${!isMgr ? 'pointer-events: none; opacity: 0.82;' : ''}">
-                    ${Object.keys(imgLabels).map(k => `
-                        <div class="checklist-item ${imgCheck[k] ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleImgCheck('${product.id}', '${k}')">
-                            <div class="checklist-checkbox">${imgCheck[k] ? '✓' : ''}</div>
-                            <span>${imgLabels[k]}</span>
+                    ${imgKeys.map(item => `
+                        <div class="checklist-item ${imgCheck[item.k] ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleImgCheck('${product.id}', '${item.k}')">
+                            <div class="checklist-checkbox">${imgCheck[item.k] ? '✓' : ''}</div>
+                            <span>${item.label}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -408,18 +405,18 @@ class ProductsModule {
         // 5) ETAPA 3: PRECIFICAÇÃO ANALÍTICA POR CANAL
         const prices = product.channelPrices || {};
         const channels = [
-            { k: 'shopee1', label: 'Shopee 1' },
-            { k: 'shopee2', label: 'Shopee 2' },
-            { k: 'mercadolivre1_classico', label: 'Mercado Livre 1 (Clássico)' },
-            { k: 'mercadolivre1_premium', label: 'Mercado Livre 1 (Premium)' },
-            { k: 'mercadolivre2_classico', label: 'Mercado Livre 2 (Clássico)' },
-            { k: 'mercadolivre2_premium', label: 'Mercado Livre 2 (Premium)' },
-            { k: 'magalu1', label: 'Magalu 1' },
-            { k: 'magalu2', label: 'Magalu 2' },
-            { k: 'amazon', label: 'Amazon' },
-            { k: 'shein', label: 'Shein' },
-            { k: 'tiktok', label: 'TikTok' },
-            { k: 'yampi', label: 'Yampi' }
+            { k: 'shopee1', label: 'Shopee 1', hasPromo: true },
+            { k: 'shopee2', label: 'Shopee 2', hasPromo: true },
+            { k: 'mercadolivre1_classico', label: 'Mercado Livre 1 (Clássico)', hasPromo: true },
+            { k: 'mercadolivre1_premium', label: 'Mercado Livre 1 (Premium)', hasPromo: true },
+            { k: 'mercadolivre2_classico', label: 'Mercado Livre 2 (Clássico)', hasPromo: true },
+            { k: 'mercadolivre2_premium', label: 'Mercado Livre 2 (Premium)', hasPromo: true },
+            { k: 'magalu1', label: 'Magalu 1', hasPromo: false },
+            { k: 'magalu2', label: 'Magalu 2', hasPromo: false },
+            { k: 'amazon', label: 'Amazon', hasPromo: false },
+            { k: 'shein', label: 'Shein', hasPromo: false },
+            { k: 'tiktok', label: 'TikTok', hasPromo: false },
+            { k: 'yampi', label: 'Yampi', hasPromo: false }
         ];
         const stage3HTML = `
             <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;" id="overview-pricing-container">
@@ -429,11 +426,27 @@ class ProductsModule {
                     </h3>
                     <span class="badge-stage badge-emerald">Tabela de Preços</span>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.85rem; margin-bottom: 1rem;">
                     ${channels.map(ch => `
                         <div style="background: var(--bg-card-solid); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                            <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">${ch.label}</label>
-                            <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.6rem; font-size: 0.9rem; font-weight: 700; color: var(--accent-emerald);" ${!isMgr ? 'disabled' : ''}>
+                            <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">${ch.label}</label>
+                            ${ch.hasPromo ? `
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div>
+                                        <span style="font-size: 0.68rem; color: var(--text-subdued); display: block; margin-bottom: 2px;">Normal</span>
+                                        <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-emerald);" ${!isMgr ? 'disabled' : ''}>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.68rem; color: var(--accent-rose); display: block; margin-bottom: 2px;">Promoção</span>
+                                        <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}_promo" value="${Number(prices[ch.k + '_promo'] || 0).toFixed(2)}" style="padding: 0.4rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-rose);" ${!isMgr ? 'disabled' : ''}>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div>
+                                    <span style="font-size: 0.68rem; color: var(--text-subdued); display: block; margin-bottom: 2px;">Normal</span>
+                                    <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${Number(prices[ch.k] || 0).toFixed(2)}" style="padding: 0.4rem 0.6rem; font-size: 0.9rem; font-weight: 700; color: var(--accent-emerald);" ${!isMgr ? 'disabled' : ''}>
+                                </div>
+                            `}
                         </div>
                     `).join('')}
                 </div>
@@ -448,6 +461,7 @@ class ProductsModule {
         `;
 
         // 6) ETAPA 4: VERIFICAÇÃO GERAL & APROVAÇÃO
+        const stage4Content = window.kanbanModule ? window.kanbanModule.renderVerificationHTML(product) : '';
         const stage4HTML = `
             <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
@@ -456,15 +470,8 @@ class ProductsModule {
                     </h3>
                     <span class="badge-stage badge-amber">Controle de Qualidade</span>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-                    <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                        <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Ficha Técnica & ERP Olist:</h4>
-                        <p style="font-size: 0.82rem; color: var(--accent-cyan); font-weight: 600; margin: 0;">✔️ Ficha Técnica, Medidas, Pesos e EAN verificados no Olist.</p>
-                    </div>
-                    <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                        <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Tabela de Preços & Margem:</h4>
-                        <p style="font-size: 0.82rem; color: var(--accent-emerald); font-weight: 600; margin: 0;">✔️ Preço base R$ ${Number(product.suggestedPrice || 0).toFixed(2)} | Canais conferidos com concorrência.</p>
-                    </div>
+                <div style="${!isMgr ? 'pointer-events: none; opacity: 0.82;' : ''}">
+                    ${stage4Content}
                 </div>
             </div>
         `;
