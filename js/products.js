@@ -177,10 +177,13 @@ class ProductsModule {
                         R$ ${Number(product.suggestedPrice || 0).toFixed(2)}
                     </td>
                     <td onclick="event.stopPropagation();">
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
                             ${window.store.isManager() ? `
-                            <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="window.auditModule.openProductHistory('${product.id}')">
+                            <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="window.auditModule.openProductHistory('${product.id}')" title="Ver histórico">
                                 📜 Histórico
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3);" onclick="window.productsModule.handleDeleteProduct('${product.id}')" title="Excluir produto">
+                                🗑️ Excluir
                             </button>
                             ` : ''}
                         </div>
@@ -572,6 +575,16 @@ class ProductsModule {
             window.store.updateChannelPrices(productId, newPrices);
             if (window.app) window.app.showToast('💰 Preços por canal atualizados!', 'success');
             this.openProductOverviewModal(productId);
+        }
+    }
+
+    handleDeleteProduct(productId) {
+        if (confirm('Tem certeza que deseja EXCLUIR permanentemente este produto?')) {
+            const success = window.store.deleteProduct(productId);
+            if (success) {
+                this.renderProductListTable();
+                if (window.app) window.app.showToast('Produto excluído com sucesso.', 'warning');
+            }
         }
     }
 }

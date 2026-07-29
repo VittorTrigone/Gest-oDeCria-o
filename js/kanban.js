@@ -870,9 +870,11 @@ class KanbanModule {
 
     handleDeleteProductFromModal(productId) {
         if (confirm('Tem certeza que deseja remover este produto da esteira?')) {
-            window.store.deleteProduct(productId);
-            window.app.closeModal('modal-product-detail');
-            if (window.app) window.app.showToast('Produto excluído da esteira.', 'warning');
+            const success = window.store.deleteProduct(productId);
+            if (success) {
+                window.app.closeModal('modal-product-detail');
+                if (window.app) window.app.showToast('Produto excluído da esteira.', 'warning');
+            }
         }
     }
 }

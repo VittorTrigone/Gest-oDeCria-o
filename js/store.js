@@ -350,7 +350,7 @@ class SectorStore {
     isManager(user) {
         const u = user || this.state.auth?.currentUser;
         if (!u) return false;
-        return u.sysRole === 'manager' || u.id === 'emp-1';
+        return u.sysRole === 'manager' || u.role === 'manager' || u.id === 'emp-1';
     }
 
     // --- EMPLOYEES CRUD ---
@@ -396,16 +396,17 @@ class SectorStore {
     }
 
     deleteEmployee(id) {
-        if (id === 'emp-1') return; // Prevenir exclusão do gerente root
+        if (id === 'emp-1') return false; // Prevenir exclusão do gerente root
         
         // Trava de backend: Apenas gerentes podem excluir colaboradores
-        if (this.state.auth.currentUser && this.state.auth.currentUser.role !== 'manager') {
+        if (!this.isManager()) {
             if (window.app) window.app.showToast('Sem permissão para excluir colaboradores.', 'error');
-            return;
+            return false;
         }
 
         this.state.employees = this.state.employees.filter(e => e.id !== id);
         this.saveState();
+        return true;
     }
 
     // --- PRODUCTS CRUD ---
@@ -714,9 +715,9 @@ class SectorStore {
     }
 
     deleteProduct(productId) {
-        if (this.state.auth.currentUser && this.state.auth.currentUser.role !== 'manager') {
+        if (!this.isManager()) {
             if (window.app) window.app.showToast('Sem permissão para excluir produtos.', 'error');
-            return;
+            return false;
         }
 
         const product = this.getProductById(productId);
@@ -728,7 +729,9 @@ class SectorStore {
             this.state.products = this.state.products.filter(p => p.id !== productId);
             this.saveState();
             this.addAuditLog('EXCLUIR_PRODUTO', productId, product.title, `Produto excluído permanentemente.`);
+            return true;
         }
+        return false;
     }
 
     // --- APPROVALS CRUD ---
