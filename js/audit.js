@@ -1,12 +1,13 @@
 class AuditModule {
     constructor() {
-        this.renderGlobalAudit();
+        this.globalAuditLimit = 50;
+        this.renderGlobalAudit(true);
         
         // Listener para renderizar globalmente sempre que a aba audit for aberta
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (e.currentTarget.dataset.tab === 'audit') {
-                    this.renderGlobalAudit();
+                    this.renderGlobalAudit(true);
                 }
             });
         });
@@ -62,9 +63,49 @@ class AuditModule {
         `;
     }
 
-    renderGlobalAudit() {
+    formatDateHeader(isoString) {
+        const date = new Date(isoString);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const isToday = date.toDateString() === today.toDateString();
+        const isYesterday = date.toDateString() === yesterday.toDateString();
+
+        const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+        if (isToday) return `📅 Hoje — ${dateStr}`;
+        if (isYesterday) return `📅 Ontem — ${dateStr}`;
+        return `📅 ${dateStr}`;
+    }
+
+    renderDateSeparator(dateLabel) {
+        return `
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0 0.85rem 0; padding-top: 0.5rem;">
+                <span style="font-size: 0.82rem; font-weight: 800; padding: 0.35rem 0.85rem; border-radius: var(--radius-full); background: rgba(238, 158, 0, 0.15); color: var(--primary); border: 1px solid rgba(238, 158, 0, 0.35); display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.3px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    ${dateLabel}
+                </span>
+                <div style="flex: 1; height: 1px; background: var(--border-color); opacity: 0.6;"></div>
+            </div>
+        `;
+    }
+
+    groupLogsByDate(logsList) {
+        const grouped = {};
+        logsList.forEach(log => {
+            const dateKey = this.formatDateHeader(log.timestamp);
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+            grouped[dateKey].push(log);
+        });
+        return grouped;
+    }
+
+    renderGlobalAudit(resetLimit = false) {
         const container = document.getElementById('audit-global-list');
         if (!container) return;
+
+        if (resetLimit) {
+            this.globalAuditLimit = 50;
+        }
 
         if (!window.store.isManager()) {
             container.innerHTML = '<p style="color: var(--accent-rose); text-align: center; padding: 2rem;">Acesso restrito a gerentes.</p>';
@@ -78,7 +119,37 @@ class AuditModule {
             return;
         }
 
-        container.innerHTML = logs.map(log => this.renderLogCard(log, true)).join('');
+        const displayedLogs = logs.slice(0, this.globalAuditLimit);
+        const grouped = this.groupLogsByDate(displayedLogs);
+
+        let html = '';
+        Object.keys(grouped).forEach(dateKey => {
+            html += this.renderDateSeparator(dateKey);
+            html += grouped[dateKey].map(log => this.renderLogCard(log, true)).join('');
+        });
+
+        if (logs.length > this.globalAuditLimit) {
+            html += `
+                <div style="text-align: center; margin: 2.2rem 0 1rem 0; padding-top: 1.2rem; border-top: 1px dashed var(--border-color);">
+                    <button class="btn btn-secondary" style="padding: 0.65rem 1.6rem; font-size: 0.85rem; font-weight: 700; border-color: var(--primary); color: var(--primary);" onclick="window.auditModule.loadMoreGlobalAudit()">
+                        ➕ Carregar mais registros (exibindo ${this.globalAuditLimit} de ${logs.length})
+                    </button>
+                </div>
+            `;
+        } else if (logs.length > 5) {
+            html += `
+                <div style="text-align: center; margin: 2.2rem 0 1rem 0; font-size: 0.78rem; color: var(--text-muted);">
+                    ✅ Todos os ${logs.length} registros foram exibidos.
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    loadMoreGlobalAudit() {
+        this.globalAuditLimit += 50;
+        this.renderGlobalAudit(false);
     }
 
     openProductHistory(productId) {
@@ -93,7 +164,13 @@ class AuditModule {
         if (logs.length === 0) {
             container.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--text-muted);">Nenhum registro encontrado para este produto.</div>`;
         } else {
-            container.innerHTML = logs.map(log => this.renderLogCard(log, false)).join('');
+            const grouped = this.groupLogsByDate(logs);
+            let html = '';
+            Object.keys(grouped).forEach(dateKey => {
+                html += this.renderDateSeparator(dateKey);
+                html += grouped[dateKey].map(log => this.renderLogCard(log, false)).join('');
+            });
+            container.innerHTML = html;
         }
 
         if (window.app) window.app.openModal('modal-product-history');
