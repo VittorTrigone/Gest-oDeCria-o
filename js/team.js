@@ -115,31 +115,42 @@ class TeamModule {
                     </div>
 
                     ${isManager ? `
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.85rem; margin-top: auto;">
-                        <span style="font-size: 0.78rem; color: var(--text-muted);">
-                            Avaliação: <strong style="color: var(--accent-amber);">⭐ ${emp.performanceRating || '5.0'}</strong>
-                        </span>
-                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                            <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: var(--primary); color: var(--primary);" onclick="window.teamModule.openEditEmployee('${emp.id}')" title="Editar informações do funcionário">
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.9rem; margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                                Avaliação Geral:
+                                <strong style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); font-weight: 700; font-size: 0.78rem; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    ⭐ ${emp.performanceRating || '5.0'}
+                                </strong>
+                            </span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem;">
+                            <button class="btn btn-secondary" style="padding: 0.45rem 0.2rem; font-size: 0.76rem; border-color: rgba(238, 158, 0, 0.35); color: var(--primary); justify-content: center; font-weight: 600;" onclick="window.teamModule.openEditEmployee('${emp.id}')" title="Editar informações do funcionário">
                                 ✏️ Editar
                             </button>
-                            <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: rgba(245, 158, 11, 0.4); color: var(--accent-amber);" onclick="window.teamModule.resetEmployeePassword('${emp.id}')" title="Voltar a senha para 12345">
+                            <button class="btn btn-secondary" style="padding: 0.45rem 0.2rem; font-size: 0.76rem; border-color: rgba(56, 189, 248, 0.35); color: var(--accent-cyan, #38bdf8); justify-content: center; font-weight: 600;" onclick="window.teamModule.resetEmployeePassword('${emp.id}')" title="Voltar a senha para 12345">
                                 🔄 Senha
                             </button>
-                            <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4);" onclick="window.teamModule.evaluateEmployee('${emp.id}')">
+                            <button class="btn btn-secondary" style="padding: 0.45rem 0.2rem; font-size: 0.76rem; border-color: rgba(245, 158, 11, 0.35); color: var(--accent-amber, #f59e0b); justify-content: center; font-weight: 600;" onclick="window.teamModule.evaluateEmployee('${emp.id}')">
                                 ⭐ Avaliar
                             </button>
+                        </div>
+
+                        ${((isOwner && emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br') || (emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br' && (!emp.sysRole || emp.sysRole !== 'manager' || isOwner))) ? `
+                        <div style="display: flex; gap: 0.45rem;">
                             ${isOwner && emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br' ? `
-                                <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: ${emp.sysRole === 'manager' ? 'rgba(192, 132, 216, 0.4)' : 'rgba(92, 191, 98, 0.4)'}; color: ${emp.sysRole === 'manager' ? 'var(--grafico-3, #c084d8)' : 'var(--sucesso, #5cbf62)'};" onclick="window.teamModule.toggleAdminRole('${emp.id}', '${emp.name}', ${emp.sysRole === 'manager'})" title="${emp.sysRole === 'manager' ? 'Remover permissão de Administrador' : 'Tornar Administrador do Sistema'}">
+                                <button class="btn btn-secondary" style="flex: 1; padding: 0.45rem 0.5rem; font-size: 0.76rem; border-color: ${emp.sysRole === 'manager' ? 'rgba(192, 132, 216, 0.45)' : 'rgba(92, 191, 98, 0.45)'}; color: ${emp.sysRole === 'manager' ? 'var(--grafico-3, #c084d8)' : 'var(--sucesso, #5cbf62)'}; justify-content: center; font-weight: 700;" onclick="window.teamModule.toggleAdminRole('${emp.id}', '${emp.name}', ${emp.sysRole === 'manager'})" title="${emp.sysRole === 'manager' ? 'Remover permissão de Administrador' : 'Tornar Administrador do Sistema'}">
                                     👑 ${emp.sysRole === 'manager' ? 'Remover ADM' : 'Tornar ADM'}
                                 </button>
                             ` : ''}
                             ${emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br' && (!emp.sysRole || emp.sysRole !== 'manager' || isOwner) ? `
-                                <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: rgba(244, 63, 94, 0.4); color: var(--accent-rose);" onclick="window.teamModule.deleteEmployee('${emp.id}', '${emp.name}')" title="Excluir Colaborador">
+                                <button class="btn btn-secondary" style="flex: 1; padding: 0.45rem 0.5rem; font-size: 0.76rem; border-color: rgba(244, 63, 94, 0.45); color: var(--accent-rose, #f43f5e); justify-content: center; font-weight: 700;" onclick="window.teamModule.deleteEmployee('${emp.id}', '${emp.name}')" title="Excluir Colaborador">
                                     🗑️ Excluir
                                 </button>
                             ` : ''}
                         </div>
+                        ` : ''}
                     </div>
                     ` : ''}
                 </div>
