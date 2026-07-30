@@ -38,6 +38,7 @@ class TeamModule {
 
         const cu = window.store.state.auth?.currentUser;
         const isManager = cu && (cu.sysRole === 'manager' || cu.role === 'manager' || cu.id === 'emp-1');
+        const isOwner = cu && (cu.id === 'emp-1' || cu.email === 'vittor@emporioctz.com.br');
 
         const addBtn = document.querySelector('#tab-team button[onclick*="modal-add-employee"]');
         if (addBtn) addBtn.style.display = isManager ? 'inline-flex' : 'none';
@@ -83,7 +84,7 @@ class TeamModule {
                             ${emp.avatar}
                         </div>
                         <div class="member-info">
-                            <h3>${emp.name}</h3>
+                            <h3>${emp.name} ${emp.sysRole === 'manager' ? '<span style="font-size: 0.68rem; padding: 2px 7px; border-radius: 6px; background: rgba(238, 158, 0, 0.2); color: var(--primary); vertical-align: middle; margin-left: 6px; font-weight: 700; border: 1px solid rgba(238, 158, 0, 0.4);">ADM</span>' : ''}</h3>
                             <p class="member-role">${emp.role}</p>
                             <p style="font-size: 0.75rem; color: var(--text-subdued); margin-top: 2px;">${emp.email || ''}</p>
                         </div>
@@ -118,17 +119,22 @@ class TeamModule {
                         <span style="font-size: 0.78rem; color: var(--text-muted);">
                             Avaliação: <strong style="color: var(--accent-amber);">⭐ ${emp.performanceRating || '5.0'}</strong>
                         </span>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                             <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: var(--primary); color: var(--primary);" onclick="window.teamModule.openEditEmployee('${emp.id}')" title="Editar informações do funcionário">
                                 ✏️ Editar
                             </button>
                             <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: rgba(245, 158, 11, 0.4); color: var(--accent-amber);" onclick="window.teamModule.resetEmployeePassword('${emp.id}')" title="Voltar a senha para 12345">
                                 🔄 Senha
                             </button>
-                            <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.78rem; color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4);" onclick="window.teamModule.evaluateEmployee('${emp.id}')">
+                            <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4);" onclick="window.teamModule.evaluateEmployee('${emp.id}')">
                                 ⭐ Avaliar
                             </button>
-                            ${emp.id !== 'emp-1' ? `
+                            ${isOwner && emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br' ? `
+                                <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: ${emp.sysRole === 'manager' ? 'rgba(192, 132, 216, 0.4)' : 'rgba(92, 191, 98, 0.4)'}; color: ${emp.sysRole === 'manager' ? 'var(--grafico-3, #c084d8)' : 'var(--sucesso, #5cbf62)'};" onclick="window.teamModule.toggleAdminRole('${emp.id}', '${emp.name}', ${emp.sysRole === 'manager'})" title="${emp.sysRole === 'manager' ? 'Remover permissão de Administrador' : 'Tornar Administrador do Sistema'}">
+                                    👑 ${emp.sysRole === 'manager' ? 'Remover ADM' : 'Tornar ADM'}
+                                </button>
+                            ` : ''}
+                            ${emp.id !== 'emp-1' && emp.email !== 'vittor@emporioctz.com.br' && (!emp.sysRole || emp.sysRole !== 'manager' || isOwner) ? `
                                 <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: rgba(244, 63, 94, 0.4); color: var(--accent-rose);" onclick="window.teamModule.deleteEmployee('${emp.id}', '${emp.name}')" title="Excluir Colaborador">
                                     🗑️ Excluir
                                 </button>
@@ -195,6 +201,34 @@ class TeamModule {
         if (confirm(`Tem certeza absoluta que deseja EXCLUIR o colaborador ${name}?\nIsso removerá ele da equipe permanentemente.`)) {
             window.store.deleteEmployee(id);
             if (window.app) window.app.showToast(`Colaborador ${name} foi excluído da equipe.`, 'success');
+        }
+    }
+
+    toggleAdminRole(id, name, isCurrentlyAdmin) {
+        const cu = window.store.state.auth?.currentUser;
+        const isOwner = cu && (cu.id === 'emp-1' || cu.email === 'vittor@emporioctz.com.br');
+        if (!isOwner) {
+            if (window.app) window.app.showToast('Apenas o Gerente Geral (Vittor) pode alterar permissões de ADM.', 'error');
+            return;
+        }
+
+        const msg = isCurrentlyAdmin
+            ? `Deseja REMOVER as permissões de Administrador de ${name}?\nEle voltará a ser Colaborador comum.`
+            : `Deseja TRANSFORMAR ${name} em Administrador (ADM)?\nEle poderá gerenciar a equipe, produtos e configurações como você.`;
+
+        if (!confirm(msg)) return;
+
+        const updatedEmp = window.store.toggleAdminRole(id);
+        if (updatedEmp) {
+            this.renderMembers();
+            if (window.app) {
+                window.app.showToast(
+                    updatedEmp.sysRole === 'manager'
+                        ? `${name} agora é um Administrador (ADM)! 👑`
+                        : `${name} teve as permissões de ADM removidas.`,
+                    'success'
+                );
+            }
         }
     }
 

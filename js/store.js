@@ -397,6 +397,8 @@ class SectorStore {
 
     deleteEmployee(id) {
         if (id === 'emp-1') return false; // Prevenir exclusão do gerente root
+        const empToDelete = this.getEmployeeById(id);
+        if (empToDelete && empToDelete.email === 'vittor@emporioctz.com.br') return false;
         
         // Trava de backend: Apenas gerentes podem excluir colaboradores
         if (!this.isManager()) {
@@ -404,9 +406,36 @@ class SectorStore {
             return false;
         }
 
+        const cu = this.state.auth?.currentUser;
+        const isOwner = cu && (cu.id === 'emp-1' || cu.email === 'vittor@emporioctz.com.br');
+        if (empToDelete && empToDelete.sysRole === 'manager' && !isOwner) {
+            if (window.app) window.app.showToast('Apenas o Gerente Root (Vittor) pode excluir outros Administradores.', 'error');
+            return false;
+        }
+
         this.state.employees = this.state.employees.filter(e => e.id !== id);
         this.saveState();
         return true;
+    }
+
+    toggleAdminRole(id) {
+        const cu = this.state.auth?.currentUser;
+        const isOwner = cu && (cu.id === 'emp-1' || cu.email === 'vittor@emporioctz.com.br');
+        if (!isOwner) {
+            if (window.app) window.app.showToast('Apenas o Gerente Geral (Vittor) pode alterar permissões de ADM.', 'error');
+            return null;
+        }
+
+        const emp = this.getEmployeeById(id);
+        if (!emp) return null;
+        if (emp.id === 'emp-1' || emp.email === 'vittor@emporioctz.com.br') {
+            if (window.app) window.app.showToast('As permissões do Gerente Root (Vittor) não podem ser alteradas.', 'error');
+            return null;
+        }
+
+        emp.sysRole = emp.sysRole === 'manager' ? 'employee' : 'manager';
+        this.saveState();
+        return emp;
     }
 
     // --- PRODUCTS CRUD ---
