@@ -130,11 +130,11 @@ class ProductsModule {
             const avatarStr = emp ? emp.avatar : '??';
             const avatarBg = emp ? emp.avatarBg : 'var(--primary)';
 
-            let progressColor = 'var(--primary)';
-            if (isCompleted) progressColor = 'var(--accent-emerald)';
-            else if (progress >= 80) progressColor = 'var(--accent-rose)';
-            else if (progress >= 50) progressColor = 'var(--accent-amber)';
-            else if (progress >= 25) progressColor = 'var(--secondary)';
+            let progressColor = 'var(--primary, #EE9E00)';
+            if (isCompleted || progress === 100) progressColor = 'var(--sucesso, #5cbf62)';
+            else if (progress >= 75) progressColor = '#c084d8';
+            else if (progress >= 50) progressColor = 'var(--accent-cyan, #38bdf8)';
+            else if (progress >= 25) progressColor = '#FFB839';
 
             return `
                 <tr class="product-table-row ${isCompleted ? 'completed-row' : ''}" onclick="window.productsModule.openProductOverviewModal('${product.id}')">
