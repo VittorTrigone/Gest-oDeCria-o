@@ -163,6 +163,9 @@ const Auth = {
         const nameEl = document.querySelector('.manager-info h4');
         if (nameEl) nameEl.textContent = 'Deslogado';
         if (window.app) window.app.applyChromaMode(false);
+        if (window.chatModule) window.chatModule.currentChannel = 'geral';
+        const chatInput = document.getElementById('chat-input-message');
+        if (chatInput) chatInput.value = '';
     },
 
     applyUserProfile(user) {
@@ -206,20 +209,6 @@ const Auth = {
                 taskAssigneeSelect.value = user.id;
                 taskAssigneeSelect.disabled = true;
             }
-
-            // Redireciona para Produtos caso esteja em uma aba restrita
-            const activeTab = document.querySelector('.nav-item.active');
-            if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'audit')) {
-                const productsTab = document.querySelector('li[data-tab="products"]');
-                if (productsTab) productsTab.click();
-            }
-            setTimeout(() => {
-                const activeTab = document.querySelector('.nav-item.active');
-                if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'audit')) {
-                    const productsTab = document.querySelector('li[data-tab="products"]');
-                    if (productsTab) productsTab.click();
-                }
-            }, 100);
         } else {
             // Garante que se deslogar e logar como gerente, tudo volte ao normal
             const dashboardNav = document.querySelector('li[data-tab="dashboard"]');
@@ -251,6 +240,23 @@ const Auth = {
         if (window.kanbanModule) window.kanbanModule.init();
         if (window.productsModule) window.productsModule.init();
         if (window.todoModule) window.todoModule.init();
+
+        // Reseta o canal de chat para o 'geral' para não iniciar no chat anterior
+        const chatInput = document.getElementById('chat-input-message');
+        if (chatInput) chatInput.value = '';
+        if (window.chatModule) {
+            window.chatModule.currentChannel = 'geral';
+            window.chatModule.render();
+        }
+
+        // Garante que ao logar o usuário sempre vá para a primeira aba do Gerenciamento Operacional
+        const firstTab = isManager ? 'dashboard' : 'tasks';
+        if (window.app) {
+            window.app.switchTab(firstTab);
+        }
+        setTimeout(() => {
+            if (window.app) window.app.switchTab(firstTab);
+        }, 80);
     },
     
     getCurrentUser() {
