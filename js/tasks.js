@@ -115,7 +115,7 @@ class TasksModule {
                     </div>
                 `;
             } else {
-                assignedContainer.innerHTML = assignedProducts.map(prod => {
+                assignedContainer.innerHTML = assignedProducts.map((prod, idx, arr) => {
                     const progress = window.store.calculateProductProgress(prod);
                     const stageNames = {
                         olist_setup: '1. Cadastro Olist (ERP)',
@@ -125,6 +125,7 @@ class TasksModule {
                         marketplaces: '5. Cadastro nos Marketplaces',
                         completed: '🎉 Finalizado / Marketplaces'
                     };
+                    const isLast = idx === arr.length - 1;
                     return `
                         <div class="task-card-item">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
@@ -149,6 +150,7 @@ class TasksModule {
                                     ⚡ Abrir & Concluir Ação &rarr;
                                 </button>
                             </div>
+                            ${!isLast ? `<div style="height: 1px; background: var(--border-color); opacity: 0.75; margin: 1.3rem 0;"></div>` : ''}
                         </div>
                     `;
                 }).join('');
