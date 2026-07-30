@@ -16,7 +16,7 @@ class AuditModule {
     getActionDetails(action) {
         const details = {
             'CRIAR_PRODUTO': { icon: '📦', color: 'var(--accent-emerald)', label: 'Criação' },
-            'EDITAR_PRODUTO': { icon: '✏️', color: 'var(--secondary)', label: 'Edição' },
+            'EDITAR_PRODUTO': { icon: '✏️', color: 'var(--accent-purple)', label: 'Edição' },
             'ALTERAR_ETAPA': { icon: '🔄', color: 'var(--accent-amber)', label: 'Mudança de Etapa' },
             'AVANCAR_ETAPA': { icon: '➡️', color: 'var(--accent-amber)', label: 'Avanço de Etapa' },
             'ALTERAR_CHECKLIST': { icon: '☑️', color: 'var(--accent-amber)', label: 'Checklist / Form' },
@@ -27,7 +27,7 @@ class AuditModule {
             'REJEITAR_SOLICITACAO': { icon: '❌', color: 'var(--accent-rose)', label: 'Rejeição Geral' },
             'CRIAR_AVISO': { icon: '📢', color: 'var(--primary)', label: 'Novo Aviso' },
             'EXCLUIR_AVISO': { icon: '🗑️', color: 'var(--accent-rose)', label: 'Exclusão de Aviso' },
-            'CRIAR_TAREFA': { icon: '📋', color: 'var(--secondary)', label: 'Nova Tarefa' },
+            'CRIAR_TAREFA': { icon: '📋', color: 'var(--accent-purple)', label: 'Nova Tarefa' },
             'CONCLUIR_TAREFA': { icon: '☑️', color: 'var(--accent-emerald)', label: 'Status da Tarefa' },
             'EXCLUIR_TAREFA': { icon: '🗑️', color: 'var(--accent-rose)', label: 'Exclusão de Tarefa' }
         };

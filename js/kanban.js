@@ -439,7 +439,7 @@ class KanbanModule {
             }
 
             return `
-                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-purple);">
                     🖼️ Etapa 2: Criação & Tratamento de Imagens
                 </h3>
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Confira a produção visual das 13 imagens do produto antes da precificação.</p>

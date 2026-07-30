@@ -389,7 +389,7 @@ class ProductsModule {
         const stage2HTML = `
             <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--secondary);">
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--accent-purple);">
                         2️⃣ Etapa 2: Criação & Tratamento de Imagens
                     </h3>
                     <span class="badge-stage badge-indigo">Produção Visual</span>

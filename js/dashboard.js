@@ -86,7 +86,7 @@ class DashboardModule {
 
         const stages = [
             { key: 'olist_setup', label: '1. Olist (ERP)', color: 'var(--accent-cyan)' },
-            { key: 'images', label: '2. Imagens', color: 'var(--secondary)' },
+            { key: 'images', label: '2. Imagens', color: 'var(--accent-purple)' },
             { key: 'pricing', label: '3. Precificação', color: 'var(--accent-emerald)' },
             { key: 'verification', label: '4. Verificação Geral', color: 'var(--accent-amber)' },
             { key: 'marketplaces', label: '5. Marketplaces', color: 'var(--accent-rose)' }

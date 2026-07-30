@@ -294,7 +294,7 @@ class TeamModule {
 
         const stages = [
             { id: 'olist_setup', name: 'Cadastro Olist', color: 'var(--accent-cyan)' },
-            { id: 'images', name: 'Imagens e Artes', color: 'var(--secondary)' },
+            { id: 'images', name: 'Imagens e Artes', color: 'var(--accent-purple)' },
             { id: 'pricing', name: 'Precificação', color: 'var(--accent-emerald)' },
             { id: 'verification', name: 'Verificação', color: 'var(--accent-amber)' },
             { id: 'marketplaces', name: 'Marketplaces', color: 'var(--accent-rose)' }
