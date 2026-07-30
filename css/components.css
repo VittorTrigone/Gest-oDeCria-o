@@ -70,13 +70,13 @@
 .kpi-trend-down { color: var(--accent-rose); font-weight: 600; }
 .kpi-neutral { color: var(--accent-cyan); font-weight: 600; }
 
-/* Icon Variant Gradients */
-.bg-indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-.bg-emerald { background: linear-gradient(135deg, #10b981, #059669); }
-.bg-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.bg-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-.bg-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-.bg-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+/* Icon Variants (Solid Empório CTZ Palette) */
+.bg-indigo { background: var(--marca, #EE9E00); color: #1B1713; }
+.bg-emerald { background: var(--sucesso, #5CBF62); color: #12240F; }
+.bg-amber { background: var(--marca, #EE9E00); color: #1B1713; }
+.bg-rose { background: var(--erro, #F0776A); color: #2B1310; }
+.bg-cyan { background: var(--info, #6BA6F5); color: #09212B; }
+.bg-violet { background: var(--grafico-3, #C084D8); color: #23122B; }
 
 /* --- Dashboard Grid Panels --- */
 .dashboard-grid {

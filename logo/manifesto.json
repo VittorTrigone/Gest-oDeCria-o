@@ -1,0 +1,22 @@
+{
+  "ambar": "#EE9E00",
+  "tinta": "#1B1713",
+  "arquivos": [
+    "ctz-logo.svg",
+    "ctz-logo-mono.svg",
+    "ctz-logo-negativo.svg",
+    "ctz-logo-2048.png",
+    "ctz-logo-1024.png",
+    "ctz-logo-512.png",
+    "ctz-logo-negativo-1024.png",
+    "ctz-simbolo.svg",
+    "ctz-simbolo-mono.svg",
+    "ctz-simbolo-negativo.svg",
+    "ctz-simbolo-1024.png",
+    "ctz-simbolo-512.png",
+    "ctz-simbolo-192.png",
+    "ctz-simbolo-180.png",
+    "ctz-simbolo-32.png",
+    "ctz-simbolo-negativo-1024.png"
+  ]
+}

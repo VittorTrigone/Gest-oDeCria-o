@@ -1,0 +1,288 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   MARCA — Empório CTZ
+   Arquivo único de identidade visual. Trocar um valor aqui repinta os
+   sistemas, o site e tudo que carregar este arquivo.
+   Suporte completo aos modos escuro e claro (data-theme="dark" / "light").
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root, [data-theme="light"], [data-tema="claro"] {
+
+  /* ── MARCA ───────────────────────────────────────────────────────────── */
+  --marca:            #EE9E00;
+  --marca-clara:      #FFB839;
+  --marca-escura:     #BF7200;
+  --marca-texto:      #A55A00;
+  --marca-suave:      #FEF3DC;
+  --marca-contraste:  #1A1200;
+
+  /* ── AÇÃO ────────────────────────────────────────────────────────────── */
+  --acao:             var(--marca);
+  --acao-hover:       var(--marca-escura);
+  --acao-ativo:       #A66200;
+  --acao-texto:       var(--marca-contraste);
+  --acao-borda:       #BF7200;
+  --acao-2-fundo:     #FFFFFF;
+  --acao-2-borda:     #D9D2C6;
+  --acao-2-texto:     #3B352C;
+  --desabilitado:     #DCD6CC;
+  --desabilitado-texto: #8F8778;
+
+  /* ── SUPERFÍCIES ─────────────────────────────────────────────────────── */
+  --fundo:            #FAF8F5;
+  --fundo-alt:        #F2EFE9;
+  --cartao:           #FFFFFF;
+  --elevado:          #FFFFFF;
+  --sobreposicao:     rgba(20, 16, 10, .58);
+  --fundo-inverso:    #1B1713;
+  --fundo-inverso-2:  #262019;
+
+  /* ── TEXTO ───────────────────────────────────────────────────────────── */
+  --texto-forte:      #1B1712;
+  --texto-medio:      #564F45;
+  --texto-fraco:      #79705F;
+  --texto-invertido:  #F7F4EE;
+
+  /* ── BORDAS ──────────────────────────────────────────────────────────── */
+  --borda:            #E0D9CD;
+  --borda-suave:      #EFEBE3;
+  --borda-forte:      #8C8375;
+
+  /* ── SEMÂNTICOS ──────────────────────────────────────────────────────── */
+  --sucesso:          #2E7D32;  --sucesso-fundo: #E9F4EA;  --sucesso-texto: #1B5E20;
+  --alerta:           #8C4B00;  --alerta-fundo:  #FBEDE0;  --alerta-texto:  #7A4100;
+  --erro:             #C0392B;  --erro-fundo:    #FCEAE7;  --erro-texto:    #8E2A1F;
+  --info:             #1565C0;  --info-fundo:    #E8F0FB;  --info-texto:    #0D3F7A;
+
+  --valor-positivo:   var(--sucesso-texto);
+  --valor-negativo:   var(--erro-texto);
+
+  /* ── FOCO ────────────────────────────────────────────────────────────── */
+  --foco:             #1565C0;
+  --foco-anel:        0 0 0 3px rgba(21, 101, 192, .42);
+  --foco-sobre-marca: #0C3D6E;
+  --alvo-toque:       44px;
+
+  /* ── GRÁFICOS ────────────────────────────────────────────────────────── */
+  --grafico-1: #BF7200;  --grafico-2: #14707D;  --grafico-3: #8B4A9C;
+  --grafico-4: #3A5BA0;  --grafico-5: #6B8E23;  --grafico-6: #A65437;
+
+  /* ── TIPOGRAFIA ──────────────────────────────────────────────────────── */
+  --fonte-titulo: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fonte-texto:  'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fonte-mono:   'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --t-xs:   .75rem;
+  --t-sm:   .875rem;
+  --t-md:   1rem;
+  --t-lg:   1.125rem;
+  --t-xl:   1.5rem;
+  --t-2xl:  2.25rem;
+
+  --peso-normal: 400;
+  --peso-medio:  600;
+  --peso-forte:  800;
+
+  --altura-densa:  1.25;
+  --altura-normal: 1.55;
+  --num-tabular: tabular-nums;
+
+  /* ── FORMA ───────────────────────────────────────────────────────────── */
+  --raio:      12px;
+  --raio-sm:   8px;
+  --raio-lg:   18px;
+  --raio-pill: 999px;
+
+  --sombra-1: 0 1px 2px rgba(38, 28, 12, .06), 0 1px 3px rgba(38, 28, 12, .08);
+  --sombra-2: 0 4px 12px rgba(38, 28, 12, .10), 0 2px 4px rgba(38, 28, 12, .06);
+  --sombra-3: 0 18px 48px rgba(38, 28, 12, .18);
+
+  --esp-1: 4px;  --esp-2: 8px;  --esp-3: 12px;
+  --esp-4: 16px; --esp-5: 24px; --esp-6: 32px;
+
+  --transicao: .15s ease;
+
+  --cor3d:  #00E5A0;
+  --jarvis: #33D6FF;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEMA ESCURO
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme="dark"], [data-tema="escuro"] {
+  --marca:            #FFB839;
+  --marca-clara:      #FFD259;
+  --marca-escura:     #E09100;
+  --marca-texto:      #FFB839;
+  --marca-suave:      #2A2013;
+  --marca-contraste:  #1A1200;
+
+  --acao:             var(--marca);
+  --acao-hover:       var(--marca-clara);
+  --acao-ativo:       var(--marca-escura);
+  --acao-borda:       #FFD259;
+  --acao-2-fundo:     #262019;
+  --acao-2-borda:     #3C352B;
+  --acao-2-texto:     #E8E2D8;
+  --desabilitado:     #35302A;
+  --desabilitado-texto: #7B7365;
+
+  --fundo:            #14120F;
+  --fundo-alt:        #1B1814;
+  --cartao:           #1E1A16;
+  --elevado:          #272219;
+  --sobreposicao:     rgba(0, 0, 0, .66);
+  --fundo-inverso:    #0D0B09;
+  --fundo-inverso-2:  #1B1814;
+
+  --texto-forte:      #F6F2EA;
+  --texto-medio:      #C6BEB0;
+  --texto-fraco:      #9A9183;
+  --texto-invertido:  #F6F2EA;
+
+  --borda:            #362F27;
+  --borda-suave:      #262119;
+  --borda-forte:      #6E655A;
+
+  --sucesso:          #5CBF62;  --sucesso-fundo: #12240F;  --sucesso-texto: #9BE0A0;
+  --alerta:           #E07B35;  --alerta-fundo:  #2B1808;  --alerta-texto:  #F3B583;
+  --erro:             #F0776A;  --erro-fundo:    #2B1310;  --erro-texto:    #FBAFA5;
+  --info:             #6BA6F5;  --info-fundo:    #0F1D2E;  --info-texto:    #AECDFA;
+
+  --foco:             #6BA6F5;
+  --foco-anel:        0 0 0 3px rgba(107, 166, 245, .45);
+  --foco-sobre-marca: #0B2A4A;
+
+  --grafico-1: #FFB839;  --grafico-2: #3FB3C2;  --grafico-3: #C084D8;
+  --grafico-4: #7BA1E8;  --grafico-5: #A8CC5C;  --grafico-6: #E08B62;
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, .40);
+  --sombra-2: 0 4px 12px rgba(0, 0, 0, .50);
+  --sombra-3: 0 18px 48px rgba(0, 0, 0, .62);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-tema="claro"]) {
+    --marca: #FFB839; --marca-clara: #FFD259; --marca-escura: #E09100;
+    --marca-texto: #FFB839; --marca-suave: #2E2313;
+    --acao-2-fundo: #262019; --acao-2-borda: #3C352B; --acao-2-texto: #E8E2D8;
+    --desabilitado: #35302A; --desabilitado-texto: #7B7365;
+    --fundo: #14120F; --fundo-alt: #1B1814; --cartao: #1E1A16; --elevado: #272219;
+    --sobreposicao: rgba(0,0,0,.66); --fundo-inverso: #0D0B09; --fundo-inverso-2: #1B1814;
+    --texto-forte: #F6F2EA; --texto-medio: #C6BEB0; --texto-fraco: #9A9183;
+    --borda: #362F27; --borda-suave: #262119; --borda-forte: #574F42;
+    --sucesso: #5CBF62; --sucesso-fundo: #12240F; --sucesso-texto: #9BE0A0;
+    --alerta: #E07B35; --alerta-fundo: #2B1808; --alerta-texto: #F3B583;
+    --erro: #F0776A; --erro-fundo: #2B1310; --erro-texto: #FBAFA5;
+    --info: #6BA6F5; --info-fundo: #0F1D2E; --info-texto: #AECDFA;
+    --foco: #6BA6F5; --foco-anel: 0 0 0 3px rgba(107,166,245,.45); --foco-sobre-marca: #0B2A4A;
+    --grafico-1: #FFB839; --grafico-2: #3FB3C2; --grafico-3: #C084D8;
+    --grafico-4: #7BA1E8; --grafico-5: #A8CC5C; --grafico-6: #E08B62;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PONTE DE COMPATIBILIDADE (100% dos tokens do app mapeados)
+   ══════════════════════════════════════════════════════════════════════════ */
+:root:root:root {
+  /* superfícies e fundos gerais do app */
+  --bg: var(--fundo);              --bg-body: var(--fundo);
+  --bg-dark: var(--fundo);         --bg-sidebar: var(--fundo-alt);
+  --bg2: var(--fundo-alt);         --surface: var(--cartao);
+  --surface2: var(--fundo-alt);    --surface3: var(--elevado);
+  --card: var(--cartao);           --card2: var(--fundo-alt);
+  --bg-card: var(--cartao);        --bg-card-solid: var(--cartao);
+  --bg-card-hover: var(--fundo-alt);
+  --panel: var(--cartao);          --panel2: var(--fundo-alt);
+  --bg-input: var(--fundo-alt);
+
+  /* texto */
+  --text: var(--texto-forte);      --txt: var(--texto-forte);
+  --text-main: var(--texto-forte); --label: var(--texto-medio);
+  --text2: var(--texto-medio);     --text3: var(--texto-fraco);
+  --muted: var(--texto-fraco);     --mut: var(--texto-fraco);
+  --mut2: var(--texto-fraco);      --text-muted: var(--texto-medio);
+  --dim: var(--texto-fraco);       --dim2: var(--texto-fraco);
+  --text-subdued: var(--texto-fraco);
+  --text-inverse: var(--texto-invertido);
+
+  /* bordas */
+  --border: var(--borda);          --bd: var(--borda);
+  --border-color: var(--borda);    --border-highlight: var(--borda-forte);
+  --line: var(--borda-suave);      --border-focus: var(--foco);
+
+  /* marca / ação (Âmbar CTZ) */
+  --brand: var(--marca);           --brand2: var(--marca-clara);
+  --accent: var(--marca);          --acc: var(--marca);
+  --accent-hover: var(--acao-hover);
+  --accent-dim: var(--marca-suave);
+  --primary: var(--marca);         --primary-dark: var(--marca-escura);
+  --primary-hover: var(--acao-hover);
+  --primary-light: rgba(238, 158, 0, 0.15);
+  --secondary: var(--acao-2-fundo);
+  --gold: var(--marca);            --amber: var(--marca);
+  --amar: var(--marca);            --glow: var(--marca-clara);
+
+  /* o navy e o roxo herdados viram o escuro quente da marca */
+  --navy: var(--fundo-inverso);    --navy2: var(--fundo-inverso-2);
+  --purple: var(--grafico-3);
+
+  /* semânticos */
+  --green: var(--sucesso);         --green2: var(--sucesso-texto);
+  --verde: var(--sucesso);         --ok: var(--sucesso);
+  --green-bg: var(--sucesso-fundo);
+  --accent-emerald: var(--sucesso);
+  --red: var(--erro);              --bad: var(--erro);
+  --red-bg: var(--erro-fundo);
+  --accent-rose: var(--erro);      --accent-pink: var(--grafico-3);
+  --orange: var(--alerta);         --orange-bg: var(--alerta-fundo);
+  --warn: var(--alerta);           --warn-dim: var(--alerta-fundo);
+  --accent-amber: var(--alerta);
+  --blue: var(--info);             --blue-bg: var(--info-fundo);
+  --accent-cyan: var(--info);
+  --gray: var(--texto-fraco);      --gray-bg: var(--fundo-alt);
+  --tg: var(--info);               --user: var(--marca);
+
+  /* forma e tipo */
+  --radius: var(--raio);           --radius-sm: var(--raio-sm);
+  --radius-md: var(--raio);        --radius-lg: var(--raio-lg);
+  --shadow: var(--sombra-1);       --shadow-lg: var(--sombra-3);
+  --font: var(--fonte-texto);      --mono: var(--fonte-mono);
+  --font-primary: var(--fonte-texto);
+  --transition: var(--transicao);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BASE MÍNIMA E ACESSIBILIDADE
+   ══════════════════════════════════════════════════════════════════════════ */
+:where(body) {
+  font-family: var(--fonte-texto);
+  color: var(--texto-forte);
+  background: var(--fundo);
+  line-height: var(--altura-normal);
+  -webkit-font-smoothing: antialiased;
+}
+:where(h1, h2, h3, .titulo) {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-forte);
+  letter-spacing: -.015em;
+  line-height: 1.15;
+}
+:where(code, kbd, samp, pre, .mono, .sku, .ean, .codigo) {
+  font-family: var(--fonte-mono);
+}
+:where(td, .valor, .numero, .moeda) { font-variant-numeric: var(--num-tabular); }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+  box-shadow: var(--foco-anel);
+}
+
+.btn-1:focus-visible, [data-acao="primaria"]:focus-visible {
+  outline-color: var(--foco-sobre-marca);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--foco-sobre-marca) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -372,14 +372,17 @@ body::after {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    background: var(--primary, #EE9E00);
+    color: #1B1713;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(238, 158, 0, 0.25);
 }
 
 .btn-primary:hover {
+    background: var(--primary-hover, #FFB839);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
+    box-shadow: 0 6px 16px rgba(238, 158, 0, 0.4);
+    color: #1B1713;
 }
 
 .btn-secondary {
