@@ -125,6 +125,9 @@ class TeamModule {
                             </span>
                         </div>
 
+                        <!-- Risquinho separando a avaliação geral dos botões -->
+                        <div style="height: 1px; background: var(--border-color); opacity: 0.65; margin: 0.05rem 0;"></div>
+
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem;">
                             <button class="btn btn-secondary" style="padding: 0.45rem 0.2rem; font-size: 0.76rem; border-color: rgba(238, 158, 0, 0.35); color: var(--primary); justify-content: center; font-weight: 600;" onclick="window.teamModule.openEditEmployee('${emp.id}')" title="Editar informações do funcionário">
                                 ✏️ Editar
