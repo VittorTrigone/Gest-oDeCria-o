@@ -155,8 +155,77 @@ class App {
             setTimeout(() => toast.remove(), 300);
         }, 3500);
     }
+
+    triggerEasterEggChroma() {
+        const cu = window.store.state.auth?.currentUser;
+        if (!cu) {
+            this.showToast('Você precisa estar logado para ativar este segredo!', 'warning');
+            return;
+        }
+
+        if (cu.chromaMode) {
+            cu.chromaMode = false;
+            window.store.saveState();
+            this.applyChromaMode(false);
+            this.showToast('Modo Chroma Razer desativado! 🌙', 'info');
+            return;
+        }
+
+        const existingModal = document.getElementById('modal-chroma-easter-egg');
+        if (existingModal) existingModal.remove();
+
+        const modalHtml = `
+            <div class="modal-overlay active" id="modal-chroma-easter-egg" style="z-index: 100000; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+                <div class="modal-card" style="max-width: 460px; text-align: center; border: 2px solid var(--primary); box-shadow: 0 0 35px rgba(238, 158, 0, 0.5); padding: 2rem;">
+                    <div style="font-size: 3.8rem; margin-bottom: 0.5rem; animation: pulse 1s infinite;">🌈⚡</div>
+                    <h2 style="font-size: 1.6rem; font-weight: 900; color: var(--primary); margin-bottom: 0.75rem; letter-spacing: 0.5px;">
+                        VOCÊ TEM CERTEZA DISSO?!?!?
+                    </h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.8rem; line-height: 1.5;">
+                        Você está prestes a ativar o lendário <strong>Modo Chroma Razer Rainbow</strong>! O seu painel será tomado por um efeito de luzes RGB infinito.<br><br>
+                        <em>Deseja continuar?</em>
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-secondary" style="flex: 1; justify-content: center; font-weight: 700; padding: 0.75rem; border-color: var(--border-color);" onclick="document.getElementById('modal-chroma-easter-egg').remove()">
+                            Não
+                        </button>
+                        <button class="btn btn-primary" style="flex: 1; justify-content: center; font-weight: 900; padding: 0.75rem; background: linear-gradient(90deg, #ff0055, #ff5500, #ffff00, #00ff55, #00ffff, #0055ff, #ff00ff); color: #000; border: none; box-shadow: 0 0 18px rgba(255,255,0,0.6);" onclick="window.app.confirmEnableChroma()">
+                            Sim
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        const div = document.createElement('div');
+        div.innerHTML = modalHtml;
+        document.body.appendChild(div.firstElementChild);
+    }
+
+    confirmEnableChroma() {
+        const el = document.getElementById('modal-chroma-easter-egg');
+        if (el) el.remove();
+
+        const cu = window.store.state.auth?.currentUser;
+        if (cu) {
+            cu.chromaMode = true;
+            window.store.saveState();
+        }
+        this.applyChromaMode(true);
+        this.showToast('🌈 MODO CHROMA RAZER ATIVADO!! ⚡', 'success');
+    }
+
+    applyChromaMode(enable) {
+        if (enable) {
+            document.documentElement.setAttribute('data-chroma', 'true');
+        } else {
+            document.documentElement.removeAttribute('data-chroma');
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
+    if (window.store?.state?.auth?.currentUser?.chromaMode) {
+        window.app.applyChromaMode(true);
+    }
 });

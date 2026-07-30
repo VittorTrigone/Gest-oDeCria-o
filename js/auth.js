@@ -162,6 +162,7 @@ const Auth = {
         if (avatarEl) { avatarEl.textContent = '??'; avatarEl.style.background = 'var(--primary)'; }
         const nameEl = document.querySelector('.manager-info h4');
         if (nameEl) nameEl.textContent = 'Deslogado';
+        if (window.app) window.app.applyChromaMode(false);
     },
 
     applyUserProfile(user) {
@@ -183,6 +184,7 @@ const Auth = {
         if (logoSubtitle) {
             logoSubtitle.textContent = isManager ? 'Painel do Gerente' : 'Painel da Equipe';
         }
+        if (window.app) window.app.applyChromaMode(Boolean(user.chromaMode));
 
         if (!isManager) {
             const dashboardNav = document.querySelector('li[data-tab="dashboard"]');

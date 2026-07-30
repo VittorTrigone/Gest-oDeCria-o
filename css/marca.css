@@ -286,3 +286,87 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* ==========================================================================
+   EASTER EGG: MODO CHROMA RAZER RAINBOW 🌈⚡
+   ========================================================================== */
+
+@keyframes razerChromaRainbow {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes razerChromaGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes razerChromaGlow {
+    0%   { border-color: #ff0055; box-shadow: 0 0 16px rgba(255, 0, 85, 0.5); }
+    14%  { border-color: #ff5500; box-shadow: 0 0 16px rgba(255, 85, 0, 0.5); }
+    28%  { border-color: #ffff00; box-shadow: 0 0 16px rgba(255, 255, 0, 0.5); }
+    42%  { border-color: #00ff55; box-shadow: 0 0 16px rgba(0, 255, 85, 0.5); }
+    57%  { border-color: #00ffff; box-shadow: 0 0 16px rgba(0, 255, 255, 0.5); }
+    71%  { border-color: #0055ff; box-shadow: 0 0 16px rgba(0, 85, 255, 0.5); }
+    85%  { border-color: #ff00ff; box-shadow: 0 0 16px rgba(255, 0, 255, 0.5); }
+    100% { border-color: #ff0055; box-shadow: 0 0 16px rgba(255, 0, 85, 0.5); }
+}
+
+@keyframes razerChromaText {
+    0%   { color: #ff0055; }
+    14%  { color: #ff5500; }
+    28%  { color: #ffff00; }
+    42%  { color: #00ff55; }
+    57%  { color: #00ffff; }
+    71%  { color: #0055ff; }
+    85%  { color: #ff00ff; }
+    100% { color: #ff0055; }
+}
+
+[data-chroma="true"] {
+    --primary: #ff0055;
+    animation: razerChromaRainbow 6s linear infinite !important;
+}
+
+[data-chroma="true"] .sidebar-header {
+    animation: razerChromaGlow 4s linear infinite !important;
+    border-radius: 12px;
+    padding: 0.35rem;
+    transition: transform 0.2s;
+}
+
+[data-chroma="true"] .sidebar-header:hover {
+    transform: scale(1.02);
+}
+
+[data-chroma="true"] .btn-primary {
+    background: linear-gradient(270deg, #ff0055, #ff5500, #ffff00, #00ff55, #00ffff, #0055ff, #ff00ff, #ff0055) !important;
+    background-size: 600% 600% !important;
+    animation: razerChromaGradient 3s ease infinite !important;
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    border: none !important;
+}
+
+[data-chroma="true"] .panel-card,
+[data-chroma="true"] .task-card-item,
+[data-chroma="true"] .team-card,
+[data-chroma="true"] .kpi-card {
+    animation: razerChromaGlow 5s linear infinite !important;
+}
+
+[data-chroma="true"] .progress-bar-fill {
+    background: linear-gradient(270deg, #ff0055, #ff5500, #ffff00, #00ff55, #00ffff, #0055ff, #ff00ff, #ff0055) !important;
+    background-size: 400% 400% !important;
+    animation: razerChromaGradient 2.5s linear infinite !important;
+}
+
+[data-chroma="true"] .nav-item.active {
+    animation: razerChromaGlow 4s linear infinite !important;
+}
+
+[data-chroma="true"] .nav-item.active span,
+[data-chroma="true"] .nav-item.active svg {
+    animation: razerChromaText 4s linear infinite !important;
+}
