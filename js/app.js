@@ -60,7 +60,9 @@ class App {
             window.store.markAnnouncementsAsRead(true);
         }
         if (tabId === 'chat' && window.store) {
-            if (window.store.markAllChatAsRead) window.store.markAllChatAsRead(true);
+            if (window.store.markChannelAsRead && window.chatModule && window.chatModule.currentChannel) {
+                window.store.markChannelAsRead(window.chatModule.currentChannel, true);
+            }
             if (window.chatModule) window.chatModule.render();
         }
 
