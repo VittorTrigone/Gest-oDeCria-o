@@ -66,19 +66,19 @@ const createDefaultChannelPrices = () => ({
 const createDefaultMarketplacesChecklist = () => ({
     shopee1: { disabled: false, assignee: 'Nenhum', canaisEnvio: false, preco: false, otimizacao: false, promocao: false, sincronizacaoTiny: false },
     shopee2: { disabled: false, assignee: 'Nenhum', canaisEnvio: false, preco: false, otimizacao: false, promocao: false, sincronizacaoTiny: false },
-    mercadolivre1: { 
-        disabled: false, 
-        assignee: 'Nenhum', 
-        clip: false, 
-        classico: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false }, 
-        premium: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false } 
+    mercadolivre1: {
+        disabled: false,
+        assignee: 'Nenhum',
+        clip: false,
+        classico: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false },
+        premium: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false }
     },
-    mercadolivre2: { 
-        disabled: false, 
-        assignee: 'Nenhum', 
-        clip: false, 
-        classico: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false }, 
-        premium: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false } 
+    mercadolivre2: {
+        disabled: false,
+        assignee: 'Nenhum',
+        clip: false,
+        classico: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false },
+        premium: { preco: false, promocao: false, frete: false, sincronizacaoTiny: false }
     },
     magalu1: { disabled: false, assignee: 'Nenhum', preco: false, promocao: false, sincronizacaoTiny: false },
     magalu2: { disabled: false, assignee: 'Nenhum', preco: false, promocao: false, sincronizacaoTiny: false },
@@ -134,7 +134,7 @@ class SectorStore {
     constructor() {
         this.listeners = [];
         this.isSyncing = false;
-        
+
         // 1. Carrega o auth localmente para não perder a sessão
         let localAuth = { currentUser: null };
         try {
@@ -143,8 +143,8 @@ class SectorStore {
                 const parsed = JSON.parse(stored);
                 if (parsed.auth) localAuth = parsed.auth;
             }
-        } catch(e) {}
-        
+        } catch (e) { }
+
         // 2. Estado inicial básico
         this.state = JSON.parse(JSON.stringify(defaultState));
         this.state.auth = localAuth;
@@ -175,11 +175,6 @@ class SectorStore {
         setInterval(() => {
             this.updateMyPresence();
         }, 12000);
-
-        // Atualização contínua da interface visual (dots verde/cinza) a cada 4 segundos
-        setInterval(() => {
-            this.notify();
-        }, 4000);
     }
 
     showLoadingOverlay() {
@@ -190,6 +185,11 @@ class SectorStore {
             loader.innerHTML = '<div class="modal-card" style="text-align:center;"><h3><div class="logo-badge" style="display:inline-flex; vertical-align:middle; margin-right: 10px; animation: spin 2s linear infinite;">SC</div> Conectando...</h3><p style="margin-top:10px; color:var(--text-muted);">Sincronizando com a nuvem</p></div>';
             loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);';
             document.body.appendChild(loader);
+
+            setTimeout(() => {
+                const l = document.getElementById('firebase-loader');
+                if (l) l.remove();
+            }, 2000);
         }
     }
 
@@ -206,7 +206,7 @@ class SectorStore {
                 const currentUser = this.state.auth.currentUser;
                 this.state = { ...defaultState, ...remoteState, auth: { currentUser } };
                 if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
-                
+
                 // Força atualização das credenciais do gerente principal
                 const manager = this.state.employees.find(e => e.id === 'emp-1');
                 if (manager) {
@@ -224,10 +224,10 @@ class SectorStore {
                 // Documento não existe, usar o default
                 this.saveToFirebase();
             }
-            
+
             // Cache local do estado recebido
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state)); } catch(e) {}
-            
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state)); } catch (e) { }
+
             this.hideLoadingOverlay();
             this.notify();
         }, (error) => {
@@ -254,7 +254,7 @@ class SectorStore {
                 }
                 return { ...defaultState, ...parsed, auth: parsed.auth || defaultState.auth };
             }
-        } catch (e) {}
+        } catch (e) { }
         return JSON.parse(JSON.stringify(defaultState));
     }
 
@@ -265,19 +265,19 @@ class SectorStore {
             if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
             this.state.onlineEmployees[currentUser.id] = Date.now();
         }
-        
+
         // Salva cache local
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
-        } catch (e) {}
+        } catch (e) { }
 
         if (this.dbRef) {
             this.saveToFirebase();
         }
-        
+
         this.notify();
     }
-    
+
     saveToFirebase() {
         // Não envia a sessão local para a nuvem
         const dataToSave = { ...this.state };
@@ -293,7 +293,7 @@ class SectorStore {
         const currentUser = this.state.auth?.currentUser;
         if (!currentUser) return;
         if (!this.state.onlineEmployees) this.state.onlineEmployees = {};
-        
+
         const now = Date.now();
         const lastSeen = this.state.onlineEmployees[currentUser.id] || 0;
         // Atualiza a cada 10 segundos enquanto a aba estiver aberta ou se forçado no login
@@ -325,7 +325,7 @@ class SectorStore {
         const currentUser = this.state.auth?.currentUser;
         const currentUserId = currentUser ? currentUser.id : null;
         if (!this.state.onlineEmployees) return 0;
-        
+
         let count = 0;
         (this.state.employees || []).forEach(emp => {
             if (emp.id !== currentUserId && this.isEmployeeOnline(emp.id)) {
@@ -399,7 +399,7 @@ class SectorStore {
         if (id === 'emp-1') return false; // Prevenir exclusão do gerente root
         const empToDelete = this.getEmployeeById(id);
         if (empToDelete && empToDelete.email === 'vittor@emporioctz.com.br') return false;
-        
+
         // Trava de backend: Apenas gerentes podem excluir colaboradores
         if (!this.isManager()) {
             if (window.app) window.app.showToast('Sem permissão para excluir colaboradores.', 'error');
@@ -465,9 +465,9 @@ class SectorStore {
 
         this.state.products.push(newProduct);
         this.saveState();
-        
+
         this.addAuditLog('CRIAR_PRODUTO', newProduct.id, newProduct.title, `Produto adicionado à esteira na etapa inicial.`);
-        
+
         return newProduct;
     }
 
@@ -476,7 +476,7 @@ class SectorStore {
     // ==========================================
     addAuditLog(action, productId = null, productName = null, details = '') {
         const user = this.state.auth.currentUser || { name: 'Sistema', role: 'system' };
-        
+
         const newLog = {
             id: 'log-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
             timestamp: new Date().toISOString(),
@@ -487,17 +487,17 @@ class SectorStore {
             productName: productName,
             details: details
         };
-        
+
         this.state.auditLogs.unshift(newLog);
         this.saveState();
     }
 
     _applyStageAssignee(product) {
         if (!product || !product.stage) return;
-        
+
         // Zera permissões temporárias sempre que muda de etapa
         product.allowedEditors = [];
-        
+
         // Aplica o assignee se houver configuração
         const autoAssigneeId = this.state.stageAssignees[product.stage];
         if (autoAssigneeId) {
@@ -508,7 +508,7 @@ class SectorStore {
                     const oldEmp = this.getEmployeeById(product.assigneeId);
                     if (oldEmp) oldEmp.currentWorkload = Math.max(0, oldEmp.currentWorkload - 1);
                 }
-                
+
                 product.assigneeId = emp.id;
                 product.assigneeName = emp.name;
             }
@@ -522,7 +522,7 @@ class SectorStore {
             product.stage = newStage;
             this._applyStageAssignee(product);
             this.saveState();
-            
+
             this.addAuditLog('ALTERAR_ETAPA', product.id, product.title, `Etapa alterada manualmente de ${oldStage} para ${newStage}.`);
         }
     }
@@ -540,7 +540,7 @@ class SectorStore {
             product.stage = newStage;
             this._applyStageAssignee(product);
             this.saveState();
-            
+
             this.addAuditLog('AVANCAR_ETAPA', product.id, product.title, `Produto avançado de ${oldStage} para ${newStage}.`);
         } else if (currentIdx === stageOrder.length - 1) {
             product.stage = 'completed';
@@ -559,7 +559,7 @@ class SectorStore {
 
     isStageComplete(product) {
         if (!product || !product.stage) return false;
-        
+
         if (product.stage === 'olist_setup') {
             if (!product.checklistOlist) return false;
             let total = 0, checked = 0;
@@ -573,7 +573,7 @@ class SectorStore {
                 }
             });
             return total > 0 && checked === total;
-        } 
+        }
         else if (product.stage === 'images') {
             if (!product.checklistImages) return false;
             let total = 13, checked = 0;
@@ -581,17 +581,17 @@ class SectorStore {
                 if (product.checklistImages[`img_${i}`]) checked++;
             }
             return checked === total;
-        } 
+        }
         else if (product.stage === 'pricing') {
             if (!product.channelPrices) return false;
             const req = ['shopee1', 'shopee2', 'mercadolivre1_classico', 'mercadolivre1_premium', 'mercadolivre2_classico', 'mercadolivre2_premium', 'magalu1', 'magalu2', 'amazon', 'shein', 'tiktok', 'yampi'];
             let filled = 0;
             req.forEach(k => { if (product.channelPrices[k] > 0) filled++; });
             return filled === req.length;
-        } 
+        }
         else if (product.stage === 'verification') {
             return !!product.verificationChecked;
-        } 
+        }
         else if (product.stage === 'marketplaces') {
             if (!product.marketplaces) return false;
             let total = 10, count = 0;
@@ -600,7 +600,7 @@ class SectorStore {
             });
             return count === total;
         }
-        
+
         return true;
     }
 
@@ -660,14 +660,14 @@ class SectorStore {
         if (product) {
             const oldStage = product.stage;
             Object.assign(product, updatedFields);
-            
+
             if (updatedFields.stage && updatedFields.stage !== oldStage) {
                 this._applyStageAssignee(product);
                 this.addAuditLog('ALTERAR_ETAPA', product.id, product.title, `Etapa alterada via edição de formulário para ${updatedFields.stage}.`);
             } else {
                 this.addAuditLog('EDITAR_PRODUTO', product.id, product.title, `Informações do produto atualizadas.`);
             }
-            
+
             this.saveState();
         }
     }
@@ -803,7 +803,7 @@ class SectorStore {
         try {
             const raw = localStorage.getItem('sc_read_timestamps_' + userId);
             if (raw) localData = JSON.parse(raw);
-        } catch (e) {}
+        } catch (e) { }
 
         const emp = (this.state.employees || []).find(e => e.id === userId);
         const currentUser = this.state.auth?.currentUser;
@@ -841,7 +841,7 @@ class SectorStore {
     saveUserReadTimestamps(userId, data, silent = false) {
         try {
             localStorage.setItem('sc_read_timestamps_' + userId, JSON.stringify(data));
-        } catch (e) {}
+        } catch (e) { }
 
         const emp = (this.state.employees || []).find(e => e.id === userId);
         if (emp) {
@@ -861,7 +861,7 @@ class SectorStore {
     markAnnouncementsAsRead(silent = true) {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
-        
+
         const maxAnnTs = (this.state.announcements || []).reduce((max, a) => {
             const ts = a.timestampMs || (a.date ? Date.parse(a.date) : 0);
             return Math.max(max, ts);
@@ -890,7 +890,7 @@ class SectorStore {
     }
     addChatMessage(channel, text) {
         if (!this.state.chatMessages) this.state.chatMessages = [];
-        
+
         const currentUser = this.state.auth.currentUser || this.state.employees[0];
         const now = Date.now();
 
@@ -913,10 +913,10 @@ class SectorStore {
     markChannelAsRead(channelKey, silent = false) {
         const currentUser = this.state.auth.currentUser;
         if (!currentUser) return;
-        
+
         const current = this.getUserReadTimestamps(currentUser.id);
         if (!current.chatReadTimestamps) current.chatReadTimestamps = {};
-        
+
         const now = Date.now();
         const msgs = this.getChatMessages(channelKey);
         let maxMsgTs = now;
@@ -1027,9 +1027,9 @@ class SectorStore {
         };
         this.state.personalTasks.unshift(newTask);
         this.saveState();
-        
+
         this.addAuditLog('CRIAR_TAREFA', null, null, `Nova tarefa pessoal adicionada: "${text}"`);
-        
+
         return newTask;
     }
 
