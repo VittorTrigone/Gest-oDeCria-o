@@ -9,16 +9,23 @@
     --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
     /* Theme Accent Colors */
-    --primary: #6366f1;         /* Indigo */
+    --primary: #6366f1;
+    /* Indigo */
     --primary-hover: #4f46e5;
     --primary-light: rgba(99, 102, 241, 0.15);
-    
-    --secondary: #8b5cf6;       /* Purple/Violet */
-    --accent-cyan: #06b6d4;      /* Cyan */
-    --accent-emerald: #10b981;   /* Emerald Green */
-    --accent-amber: #f59e0b;     /* Amber / Orange */
-    --accent-rose: #f43f5e;      /* Rose / Red */
-    --accent-pink: #ec4899;      /* Pink */
+
+    --secondary: #8b5cf6;
+    /* Purple/Violet */
+    --accent-cyan: #06b6d4;
+    /* Cyan */
+    --accent-emerald: #10b981;
+    /* Emerald Green */
+    --accent-amber: #f59e0b;
+    /* Amber / Orange */
+    --accent-rose: #f43f5e;
+    /* Rose / Red */
+    --accent-pink: #ec4899;
+    /* Pink */
 
     /* Default Theme (Dark Mode Premium Glassmorphism) */
     --bg-dark: #0b0f19;
@@ -35,11 +42,11 @@
     --text-subdued: #64748b;
 
     /* Shadows & Effects */
-    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
-    --shadow-md: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.4);
     --glass-backdrop: blur(20px) saturate(180%);
-    
+
     --radius-sm: 12px;
     --radius-md: 20px;
     --radius-lg: 28px;
@@ -61,8 +68,8 @@
     --text-muted: #475569;
     --text-subdued: #94a3b8;
 
-    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
-    --shadow-md: 0 10px 30px -10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
     --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.15);
 }
 
@@ -84,7 +91,8 @@ body {
 }
 
 /* Background Animated Mesh Gradient Orbs */
-body::before, body::after {
+body::before,
+body::after {
     content: '';
     position: fixed;
     width: 60vw;
@@ -110,9 +118,17 @@ body::after {
 }
 
 @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(10vw, 5vw) scale(1.1); }
-    100% { transform: translate(-5vw, 15vw) scale(0.9); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(10vw, 5vw) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-5vw, 15vw) scale(0.9);
+    }
 }
 
 /* Scrollbar Styling */
@@ -120,13 +136,16 @@ body::after {
     width: 8px;
     height: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--bg-dark);
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
@@ -146,7 +165,7 @@ body::after {
     backdrop-filter: var(--glass-backdrop);
     -webkit-backdrop-filter: var(--glass-backdrop);
     border-right: 1px solid var(--border-color);
-    box-shadow: 1px 0 20px rgba(0,0,0,0.2);
+    box-shadow: 1px 0 20px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -156,8 +175,10 @@ body::after {
 }
 
 .sidebar-scroll-area {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
 }
 
 .sidebar-scroll-area::-webkit-scrollbar {
@@ -299,7 +320,7 @@ body::after {
     color: white;
     font-weight: 700;
     font-size: 0.95rem;
-    border: 2px solid rgba(255,255,255,0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .manager-info h4 {
@@ -307,6 +328,7 @@ body::after {
     font-weight: 700;
     color: var(--text-main);
 }
+
 .manager-info p {
     font-size: 0.72rem;
     color: var(--accent-emerald);
@@ -441,8 +463,15 @@ body::after {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Toast Notifications System */
@@ -474,14 +503,32 @@ body::after {
     animation: slideInRight 0.3s ease forwards;
 }
 
-.toast.success { border-left: 4px solid var(--accent-emerald); }
-.toast.info { border-left: 4px solid var(--accent-cyan); }
-.toast.warning { border-left: 4px solid var(--accent-amber); }
-.toast.error { border-left: 4px solid var(--accent-rose); }
+.toast.success {
+    border-left: 4px solid var(--accent-emerald);
+}
+
+.toast.info {
+    border-left: 4px solid var(--accent-cyan);
+}
+
+.toast.warning {
+    border-left: 4px solid var(--accent-amber);
+}
+
+.toast.error {
+    border-left: 4px solid var(--accent-rose);
+}
 
 @keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Modal Window Base */
@@ -550,7 +597,9 @@ body::after {
     cursor: pointer;
 }
 
-.close-modal:hover { color: var(--accent-rose); }
+.close-modal:hover {
+    color: var(--accent-rose);
+}
 
 /* Form Field Groups */
 .form-group {
@@ -576,7 +625,7 @@ body::after {
     color: var(--text-main);
     font-family: inherit;
     font-size: 0.9rem;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: var(--transition);
 }
 

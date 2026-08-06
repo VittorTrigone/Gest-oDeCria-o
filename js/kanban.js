@@ -84,6 +84,15 @@ class KanbanModule {
             
             // Mouse wheel horizontal scroll
             board.addEventListener('wheel', (e) => {
+                // Se estiver dentro de uma coluna de cards e ela tiver scroll vertical, deixa rolar
+                const container = e.target.closest('.kanban-cards-container');
+                if (container && (container.scrollHeight > container.clientHeight)) {
+                    // Se o scroll está no limite superior e quer subir, ou limite inferior e quer descer,
+                    // talvez deixemos propagar, mas o mais seguro é simplesmente não interceptar
+                    // se estivermos focados numa coluna com scroll.
+                    return;
+                }
+
                 if (e.deltaY !== 0 && !e.shiftKey) {
                     board.scrollLeft += e.deltaY;
                     e.preventDefault();
