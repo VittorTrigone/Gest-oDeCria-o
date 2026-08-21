@@ -299,8 +299,12 @@ class SectorStore {
         // Atualiza a cada 10 segundos enquanto a aba estiver aberta ou se forçado no login
         if (force || (now - lastSeen >= 10000)) {
             this.state.onlineEmployees[currentUser.id] = now;
+            try { localStorage.setItem('creative_sector_manager_v5', JSON.stringify(this.state)); } catch (e) { }
             if (this.dbRef) {
-                this.saveToFirebase();
+                // APENAS atualiza o campo de presença no Firebase para evitar rollback de dados de outros usuários
+                this.dbRef.update({
+                    [`onlineEmployees.${currentUser.id}`]: now
+                }).catch(e => console.error("Erro ao atualizar presença:", e));
             }
         }
     }
@@ -309,8 +313,12 @@ class SectorStore {
         const currentUser = this.state.auth?.currentUser;
         if (!currentUser || !this.state.onlineEmployees) return;
         delete this.state.onlineEmployees[currentUser.id];
+        try { localStorage.setItem('creative_sector_manager_v5', JSON.stringify(this.state)); } catch (e) { }
         if (this.dbRef) {
-            this.saveToFirebase();
+            // Seta para 0 no firebase para evitar sobrescrever o banco todo
+            this.dbRef.update({
+                [`onlineEmployees.${currentUser.id}`]: 0
+            }).catch(e => console.error("Erro ao limpar presença:", e));
         }
     }
 

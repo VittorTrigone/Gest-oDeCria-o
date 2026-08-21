@@ -162,7 +162,6 @@ const Auth = {
         if (avatarEl) { avatarEl.textContent = '??'; avatarEl.style.background = 'var(--primary)'; }
         const nameEl = document.querySelector('.manager-info h4');
         if (nameEl) nameEl.textContent = 'Deslogado';
-        if (window.app) window.app.applyChromaMode(false);
         if (window.chatModule) window.chatModule.currentChannel = 'geral';
         const chatInput = document.getElementById('chat-input-message');
         if (chatInput) chatInput.value = '';
@@ -187,7 +186,6 @@ const Auth = {
         if (logoSubtitle) {
             logoSubtitle.textContent = isManager ? 'Painel do Gerente' : 'Painel da Equipe';
         }
-        if (window.app) window.app.applyChromaMode(Boolean(user.chromaMode));
 
         if (!isManager) {
             const dashboardNav = document.querySelector('li[data-tab="dashboard"]');
