@@ -60,7 +60,7 @@ class KanbanModule {
 
             board.addEventListener('mousedown', (e) => {
                 // Ignore drags on actual cards to not interfere with standard clicks
-                if (e.target.closest('.kanban-card')) return; 
+                if (e.target.closest('.product-card') || e.target.closest('.kanban-card')) return; 
                 isDown = true;
                 board.style.cursor = 'grabbing';
                 startX = e.pageX - board.offsetLeft;

@@ -100,7 +100,10 @@
   --esp-1: 4px;  --esp-2: 8px;  --esp-3: 12px;
   --esp-4: 16px; --esp-5: 24px; --esp-6: 32px;
 
-  --transicao: .15s ease;
+  --transicao: .18s cubic-bezier(0.2, 0, 0, 1);
+  --transicao-rapida: 140ms cubic-bezier(0.2, 0, 0, 1);
+  --transicao-suave: 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transicao-elevacao: 220ms cubic-bezier(0.2, 0, 0, 1);
 
   --cor3d:  #00E5A0;
   --jarvis: #33D6FF;
@@ -253,6 +256,9 @@
   --font: var(--fonte-texto);      --mono: var(--fonte-mono);
   --font-primary: var(--fonte-texto);
   --transition: var(--transicao);
+  --transition-fast: var(--transicao-rapida);
+  --transition-smooth: var(--transicao-suave);
+  --transition-lift: var(--transicao-elevacao);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -290,6 +296,4 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
-
-/* ==========================================================================
-/* Easter egg removido */
+/* Fim das diretrizes de Marca */
