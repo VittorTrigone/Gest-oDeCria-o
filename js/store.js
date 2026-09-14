@@ -568,34 +568,10 @@ class SectorStore {
     isStageComplete(product) {
         if (!product || !product.stage) return false;
 
-        if (product.stage === 'olist_setup') {
-            if (!product.checklistOlist) return false;
-            let total = 0, checked = 0;
-            ['dadosGerais', 'dadosComplementares', 'outros'].forEach(g => {
-                if (product.checklistOlist[g]) {
-                    Object.keys(product.checklistOlist[g]).forEach(k => {
-                        if (k === 'imagens' && g === 'dadosComplementares') return;
-                        total++;
-                        if (product.checklistOlist[g][k]) checked++;
-                    });
-                }
-            });
-            return total > 0 && checked === total;
-        }
-        else if (product.stage === 'images') {
-            if (!product.checklistImages) return false;
-            let total = 13, checked = 0;
-            for (let i = 1; i <= 13; i++) {
-                if (product.checklistImages[`img_${i}`]) checked++;
-            }
-            return checked === total;
-        }
-        else if (product.stage === 'pricing') {
-            if (!product.channelPrices) return false;
-            const req = ['shopee1', 'shopee2', 'mercadolivre1_classico', 'mercadolivre1_premium', 'mercadolivre2_classico', 'mercadolivre2_premium', 'magalu1', 'magalu2', 'amazon', 'shein', 'tiktok', 'yampi'];
-            let filled = 0;
-            req.forEach(k => { if (product.channelPrices[k] > 0) filled++; });
-            return filled === req.length;
+        // Etapas 1 (Cadastro Olist), 2 (Criação de Imagens) e 3 (Precificação):
+        // Avanço liberado sem bloqueio para que tudo seja conferido e validado na Etapa 4 (Verificação)
+        if (product.stage === 'olist_setup' || product.stage === 'images' || product.stage === 'pricing') {
+            return true;
         }
         else if (product.stage === 'verification') {
             return !!product.verificationChecked;
@@ -609,6 +585,20 @@ class SectorStore {
             return count === total;
         }
 
+        return true;
+    }
+
+    canAdvanceStage(product) {
+        if (!product || !product.stage) return false;
+        if (product.stage === 'olist_setup' || product.stage === 'images' || product.stage === 'pricing') {
+            return true;
+        }
+        if (product.stage === 'verification') {
+            return !!product.verificationChecked;
+        }
+        if (product.stage === 'marketplaces') {
+            return this.isStageComplete(product);
+        }
         return true;
     }
 

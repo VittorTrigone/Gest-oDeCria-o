@@ -384,11 +384,17 @@ class KanbanModule {
                                 🎉 Produto Finalizado (100%)
                             </button>
                         ` : !isLastStage ? `
-                            <button type="button" class="btn btn-primary" onclick="${window.store.isStageComplete(product) ? `window.kanbanModule.handleAdvanceStage('${product.id}')` : `window.app.showToast('Por favor, conclua todos os itens desta etapa antes de avançar.', 'warning')`}" style="${!window.store.isStageComplete(product) ? 'opacity: 0.6;' : ''}">
+                            <button type="button" class="btn btn-secondary" onclick="window.kanbanModule.handleSaveDraft('${product.id}')">
+                                💾 Salvar Rascunho
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="window.kanbanModule.handleAdvanceStage('${product.id}')" style="${(product.stage === 'verification' && !product.verificationChecked) ? 'opacity: 0.75;' : ''}">
                                 ✅ Concluir Etapa e Avançar (${nextStageName ? nextStageName.split('.')[1] : ''}) →
                             </button>
                         ` : `
-                            <button type="button" class="btn btn-primary" style="${!window.store.isStageComplete(product) ? 'opacity: 0.6;' : 'background: var(--accent-emerald);'}" onclick="${window.store.isStageComplete(product) ? `window.kanbanModule.handleFinishProduct('${product.id}')` : `window.app.showToast('Por favor, conclua todos os itens desta etapa final.', 'warning')`}">
+                            <button type="button" class="btn btn-secondary" onclick="window.kanbanModule.handleSaveDraft('${product.id}')">
+                                💾 Salvar Rascunho
+                            </button>
+                            <button type="button" class="btn btn-primary" style="${!window.store.isStageComplete(product) ? 'opacity: 0.75;' : 'background: var(--accent-emerald);'}" onclick="window.kanbanModule.handleFinishProduct('${product.id}')">
                                 🎉 Finalizar Produto & Concluir Esteira
                             </button>
                         `}
@@ -677,10 +683,13 @@ class KanbanModule {
 
     renderMarketplacesChecklistHTML(product) {
         const mkts = product.marketplaces || {};
+        const prices = product.channelPrices || {};
+
+        const formatBRL = (val) => Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         const channelsDef = [
-            { key: 'shopee1', title: 'Shopee 1', icon: '🛍️' },
-            { key: 'shopee2', title: 'Shopee 2', icon: '🛍️' },
+            { key: 'shopee1', title: 'Shopee 1', icon: '🛍️', hasPromo: true },
+            { key: 'shopee2', title: 'Shopee 2', icon: '🛍️', hasPromo: true },
             { key: 'mercadolivre1', title: 'Mercado Livre 1', icon: '📦', isML: true },
             { key: 'mercadolivre2', title: 'Mercado Livre 2', icon: '📦', isML: true },
             { key: 'magalu1', title: 'Magalu 1', icon: '🛍️' },
@@ -696,9 +705,33 @@ class KanbanModule {
             const isDisabled = !!data.disabled;
 
             if (ch.isML) {
+                const classicoPreco = formatBRL(prices[`${ch.key}_classico`]);
+                const classicoPromo = formatBRL(prices[`${ch.key}_classico_promo`]);
+                const premiumPreco = formatBRL(prices[`${ch.key}_premium`]);
+                const premiumPromo = formatBRL(prices[`${ch.key}_premium_promo`]);
+
                 return `
                     <div class="checklist-card" style="${isDisabled ? 'opacity: 0.4;' : ''}">
                         <div class="checklist-card-title"><span>${ch.icon}</span><span>${ch.title}</span></div>
+                        
+                        <!-- PREÇOS DEFINIDOS NA PRECIFICAÇÃO (ETAPA 3) -->
+                        <div class="mkt-price-box">
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); padding-bottom: 0.25rem;">
+                                <span style="font-weight: 700; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.5px;">CLÁSSICO</span>
+                                <div style="display: flex; gap: 0.6rem; align-items: center;">
+                                    <span><span style="color: var(--text-subdued); font-size: 0.68rem;">Normal:</span> <strong style="color: var(--accent-emerald);">R$ ${classicoPreco}</strong></span>
+                                    <span><span style="color: var(--text-subdued); font-size: 0.68rem;">Promo:</span> <strong style="color: var(--accent-rose);">R$ ${classicoPromo}</strong></span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.25rem;">
+                                <span style="font-weight: 700; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.5px;">PREMIUM</span>
+                                <div style="display: flex; gap: 0.6rem; align-items: center;">
+                                    <span><span style="color: var(--text-subdued); font-size: 0.68rem;">Normal:</span> <strong style="color: var(--accent-emerald);">R$ ${premiumPreco}</strong></span>
+                                    <span><span style="color: var(--text-subdued); font-size: 0.68rem;">Promo:</span> <strong style="color: var(--accent-rose);">R$ ${premiumPromo}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mkt-disabled-box" onclick="window.kanbanModule.handleToggleMktDisabled('${product.id}', '${ch.key}')">
                             <input type="checkbox" ${isDisabled ? 'checked' : ''}>
                             <span>Não é Possível Cadastrar no Marketplace</span>
@@ -709,7 +742,12 @@ class KanbanModule {
                         </div>
                         <div class="mkt-subgroup-title">CLÁSSICO</div>
                         ${['preco', 'promocao', 'frete', 'sincronizacaoTiny'].map(k => {
-                            const labels = { preco: 'Preço', promocao: 'Promoção', frete: 'Frete', sincronizacaoTiny: 'Sincronização Tiny' };
+                            const labels = {
+                                preco: `Preço <span style="font-size: 0.74rem; color: var(--accent-emerald); font-weight: 700; margin-left: auto;">(R$ ${classicoPreco})</span>`,
+                                promocao: `Promoção <span style="font-size: 0.74rem; color: var(--accent-rose); font-weight: 700; margin-left: auto;">(R$ ${classicoPromo})</span>`,
+                                frete: 'Frete',
+                                sincronizacaoTiny: 'Sincronização Tiny'
+                            };
                             const isChecked = data.classico && data.classico[k];
                             return `
                                 <div class="checklist-item ${isChecked ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleMktCheck('${product.id}', '${ch.key}', 'classico.${k}')">
@@ -720,7 +758,12 @@ class KanbanModule {
                         }).join('')}
                         <div class="mkt-subgroup-title">PREMIUM</div>
                         ${['preco', 'promocao', 'frete', 'sincronizacaoTiny'].map(k => {
-                            const labels = { preco: 'Preço', promocao: 'Promoção', frete: 'Frete', sincronizacaoTiny: 'Sincronização Tiny' };
+                            const labels = {
+                                preco: `Preço <span style="font-size: 0.74rem; color: var(--accent-emerald); font-weight: 700; margin-left: auto;">(R$ ${premiumPreco})</span>`,
+                                promocao: `Promoção <span style="font-size: 0.74rem; color: var(--accent-rose); font-weight: 700; margin-left: auto;">(R$ ${premiumPromo})</span>`,
+                                frete: 'Frete',
+                                sincronizacaoTiny: 'Sincronização Tiny'
+                            };
                             const isChecked = data.premium && data.premium[k];
                             return `
                                 <div class="checklist-item ${isChecked ? 'checked' : ''}" onclick="window.kanbanModule.handleToggleMktCheck('${product.id}', '${ch.key}', 'premium.${k}')">
@@ -734,13 +777,30 @@ class KanbanModule {
                 `;
             }
 
+            const precoNormal = formatBRL(prices[ch.key]);
+            const precoPromo = formatBRL(prices[ch.key + '_promo']);
+            const hasPromoDefined = ch.hasPromo || (prices[ch.key + '_promo'] && prices[ch.key + '_promo'] > 0);
+
             const checkKeys = [];
             if (ch.key.startsWith('shopee')) {
-                checkKeys.push({ k: 'canaisEnvio', l: 'Canais de Envio' }, { k: 'preco', l: 'Preço' }, { k: 'otimizacao', l: 'Otimização para Produto Qualificado' }, { k: 'promocao', l: 'Promoção' }, { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' });
+                checkKeys.push(
+                    { k: 'canaisEnvio', l: 'Canais de Envio' },
+                    { k: 'preco', l: `Preço <span style="font-size: 0.74rem; color: var(--accent-emerald); font-weight: 700; margin-left: auto;">(R$ ${precoNormal})</span>` },
+                    { k: 'otimizacao', l: 'Otimização para Produto Qualificado' },
+                    { k: 'promocao', l: `Promoção <span style="font-size: 0.74rem; color: var(--accent-rose); font-weight: 700; margin-left: auto;">(R$ ${precoPromo})</span>` },
+                    { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' }
+                );
             } else if (ch.key.startsWith('magalu') || ch.key === 'tiktok') {
-                checkKeys.push({ k: 'preco', l: 'Preço' }, { k: 'promocao', l: 'Promoção' }, { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' });
+                checkKeys.push(
+                    { k: 'preco', l: `Preço <span style="font-size: 0.74rem; color: var(--accent-emerald); font-weight: 700; margin-left: auto;">(R$ ${precoNormal})</span>` },
+                    { k: 'promocao', l: `Promoção <span style="font-size: 0.74rem; color: var(--accent-rose); font-weight: 700; margin-left: auto;">(R$ ${precoPromo})</span>` },
+                    { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' }
+                );
             } else {
-                checkKeys.push({ k: 'preco', l: 'Preço' }, { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' });
+                checkKeys.push(
+                    { k: 'preco', l: `Preço <span style="font-size: 0.74rem; color: var(--accent-emerald); font-weight: 700; margin-left: auto;">(R$ ${precoNormal})</span>` },
+                    { k: 'sincronizacaoTiny', l: 'Sincronização Tiny' }
+                );
             }
 
             const itemsHTML = checkKeys.map(item => {
@@ -756,6 +816,21 @@ class KanbanModule {
             return `
                 <div class="checklist-card" style="${isDisabled ? 'opacity: 0.4;' : ''}">
                     <div class="checklist-card-title"><span>${ch.icon}</span><span>${ch.title}</span></div>
+                    
+                    <!-- PREÇOS DEFINIDOS NA PRECIFICAÇÃO (ETAPA 3) -->
+                    <div class="mkt-price-box" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                            <span style="color: var(--text-muted); font-size: 0.7rem; font-weight: 600;">Preço:</span>
+                            <strong style="color: var(--accent-emerald); font-size: 0.85rem;">R$ ${precoNormal}</strong>
+                        </div>
+                        ${hasPromoDefined ? `
+                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                            <span style="color: var(--text-muted); font-size: 0.7rem; font-weight: 600;">Promoção:</span>
+                            <strong style="color: var(--accent-rose); font-size: 0.85rem;">R$ ${precoPromo}</strong>
+                        </div>
+                        ` : ''}
+                    </div>
+
                     <div class="mkt-disabled-box" onclick="window.kanbanModule.handleToggleMktDisabled('${product.id}', '${ch.key}')">
                         <input type="checkbox" ${isDisabled ? 'checked' : ''}>
                         <span>Não é Possível Cadastrar no Marketplace</span>
@@ -833,11 +908,20 @@ class KanbanModule {
     // ADVANCE STAGE ACTION
     handleAdvanceStage(productId) {
         this.saveStageInputs(productId);
-        window.store.advanceProductStage(productId);
         const product = window.store.getProductById(productId);
+        if (!product) return;
+
+        // Na Etapa 4 (Verificação), tudo é auditado e exige validação marcada
+        if (product.stage === 'verification' && !product.verificationChecked) {
+            if (window.app) window.app.showToast('Por favor, marque o item de conferência e validação antes de avançar para os marketplaces.', 'warning');
+            return;
+        }
+
+        window.store.advanceProductStage(productId);
+        const updated = window.store.getProductById(productId);
         if (window.app) window.app.showToast('✅ Etapa concluída! Produto avançou no fluxo.', 'success');
         
-        if (product) {
+        if (updated && updated.stage !== 'completed') {
             this.openProductDetailModal(productId);
         } else {
             window.app.closeModal('modal-product-detail');
@@ -846,6 +930,14 @@ class KanbanModule {
 
     handleFinishProduct(productId) {
         this.saveStageInputs(productId);
+        const product = window.store.getProductById(productId);
+        if (!product) return;
+
+        if (!window.store.isStageComplete(product)) {
+            if (window.app) window.app.showToast('Por favor, conclua todos os marketplaces (ou marque os canais desativados) antes de finalizar.', 'warning');
+            return;
+        }
+
         window.store.finishProduct(productId);
         if (window.app) {
             window.app.showToast('🎉 Produto finalizado! Agora ele está salvo na aba Todos os Produtos.', 'success');
@@ -854,7 +946,8 @@ class KanbanModule {
     }
 
     handlePriceInputChange(productId, channelKey, val) {
-        const numVal = parseFloat(val) || 0;
+        const rawVal = String(val || '').trim().replace(',', '.');
+        const numVal = parseFloat(rawVal) || 0;
         window.store.updateChannelPrices(productId, { [channelKey]: numVal });
     }
 
@@ -865,7 +958,10 @@ class KanbanModule {
             const newPrices = {};
             priceInputs.forEach(input => {
                 const channel = input.getAttribute('data-channel');
-                newPrices[channel] = parseFloat(input.value) || 0;
+                if (channel) {
+                    const rawVal = String(input.value || '').trim().replace(',', '.');
+                    newPrices[channel] = parseFloat(rawVal) || 0;
+                }
             });
             window.store.updateChannelPrices(productId, newPrices);
         }

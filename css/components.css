@@ -431,6 +431,20 @@
     color: var(--text-main);
 }
 
+.mkt-price-box {
+    background: rgba(16, 185, 129, 0.07);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.65rem;
+    font-size: 0.78rem;
+    transition: var(--transition);
+}
+
+.mkt-price-box:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.11);
+}
+
 .checklist-item {
     display: flex;
     align-items: center;
@@ -440,6 +454,12 @@
     cursor: pointer;
     user-select: none;
     transition: var(--transition);
+}
+
+.checklist-item > span {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
 }
 
 .checklist-item:hover { color: var(--text-main); }
