@@ -715,30 +715,37 @@ class KanbanModule {
                         <div class="checklist-card-title"><span>${ch.icon}</span><span>${ch.title}</span></div>
                         
                         <!-- PREÇOS DEFINIDOS NA PRECIFICAÇÃO (ETAPA 3) -->
-                        <div class="mkt-price-container">
-                            <div class="mkt-price-tier">
-                                <div class="mkt-tier-title">CLÁSSICO</div>
-                                <div class="mkt-tier-grid">
-                                    <div class="mkt-price-cell">
-                                        <span class="mkt-cell-lbl">Normal</span>
-                                        <span class="mkt-cell-val normal">R$ ${classicoPreco}</span>
+                        <div class="mkt-pricing-banner ml-banner">
+                            <div class="mkt-ml-tier-block">
+                                <div class="mkt-ml-tier-header">
+                                    <span class="mkt-ml-tag">Clássico</span>
+                                </div>
+                                <div class="mkt-ml-tier-body">
+                                    <div class="mkt-pricing-col">
+                                        <span class="mkt-pricing-caption">Preço Normal</span>
+                                        <span class="mkt-pricing-amount price-normal">R$ ${classicoPreco}</span>
                                     </div>
-                                    <div class="mkt-price-cell">
-                                        <span class="mkt-cell-lbl">Promoção</span>
-                                        <span class="mkt-cell-val promo">R$ ${classicoPromo}</span>
+                                    <div class="mkt-pricing-divider"></div>
+                                    <div class="mkt-pricing-col">
+                                        <span class="mkt-pricing-caption">Promocional</span>
+                                        <span class="mkt-pricing-amount price-promo">R$ ${classicoPromo}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mkt-price-tier">
-                                <div class="mkt-tier-title">PREMIUM</div>
-                                <div class="mkt-tier-grid">
-                                    <div class="mkt-price-cell">
-                                        <span class="mkt-cell-lbl">Normal</span>
-                                        <span class="mkt-cell-val normal">R$ ${premiumPreco}</span>
+                            <div class="mkt-ml-tier-separator"></div>
+                            <div class="mkt-ml-tier-block">
+                                <div class="mkt-ml-tier-header">
+                                    <span class="mkt-ml-tag premium">Premium</span>
+                                </div>
+                                <div class="mkt-ml-tier-body">
+                                    <div class="mkt-pricing-col">
+                                        <span class="mkt-pricing-caption">Preço Normal</span>
+                                        <span class="mkt-pricing-amount price-normal">R$ ${premiumPreco}</span>
                                     </div>
-                                    <div class="mkt-price-cell">
-                                        <span class="mkt-cell-lbl">Promoção</span>
-                                        <span class="mkt-cell-val promo">R$ ${premiumPromo}</span>
+                                    <div class="mkt-pricing-divider"></div>
+                                    <div class="mkt-pricing-col">
+                                        <span class="mkt-pricing-caption">Promocional</span>
+                                        <span class="mkt-pricing-amount price-promo">R$ ${premiumPromo}</span>
                                     </div>
                                 </div>
                             </div>
@@ -820,19 +827,18 @@ class KanbanModule {
                     <div class="checklist-card-title"><span>${ch.icon}</span><span>${ch.title}</span></div>
                     
                     <!-- PREÇOS DEFINIDOS NA PRECIFICAÇÃO (ETAPA 3) -->
-                    <div class="mkt-price-container">
-                        <div class="mkt-tier-grid ${!hasPromoDefined ? 'single' : ''}">
-                            <div class="mkt-price-cell">
-                                <span class="mkt-cell-lbl">Preço Normal</span>
-                                <span class="mkt-cell-val normal">R$ ${precoNormal}</span>
-                            </div>
-                            ${hasPromoDefined ? `
-                            <div class="mkt-price-cell">
-                                <span class="mkt-cell-lbl">Promoção</span>
-                                <span class="mkt-cell-val promo">R$ ${precoPromo}</span>
-                            </div>
-                            ` : ''}
+                    <div class="mkt-pricing-banner">
+                        <div class="mkt-pricing-col">
+                            <span class="mkt-pricing-caption">Preço Normal</span>
+                            <span class="mkt-pricing-amount price-normal">R$ ${precoNormal}</span>
                         </div>
+                        ${hasPromoDefined ? `
+                        <div class="mkt-pricing-divider"></div>
+                        <div class="mkt-pricing-col">
+                            <span class="mkt-pricing-caption">Promocional</span>
+                            <span class="mkt-pricing-amount price-promo">R$ ${precoPromo}</span>
+                        </div>
+                        ` : ''}
                     </div>
 
                     <div class="mkt-disabled-box" onclick="window.kanbanModule.handleToggleMktDisabled('${product.id}', '${ch.key}')">
