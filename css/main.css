@@ -47,7 +47,7 @@
     --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.45), 0 2px 6px -1px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     --shadow-lg: 0 18px 42px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.4);
-    --glass-backdrop: blur(16px) saturate(160%);
+    --glass-backdrop: blur(8px);
 
     --radius-sm: 10px;
     --radius-md: 16px;
@@ -90,52 +90,15 @@
 body {
     font-family: var(--font-primary);
     background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 12% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 45%);
+    background-attachment: fixed;
     color: var(--text-main);
     line-height: 1.5;
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
-}
-
-/* Background Animated Mesh Gradient Orbs */
-body::before,
-body::after {
-    content: '';
-    position: fixed;
-    width: 60vw;
-    height: 60vw;
-    border-radius: 50%;
-    z-index: -1;
-    filter: blur(80px);
-    opacity: 0.5;
-    animation: float 20s infinite alternate ease-in-out;
-}
-
-body::before {
-    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-    top: -20vw;
-    left: -10vw;
-}
-
-body::after {
-    background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
-    bottom: -20vw;
-    right: -10vw;
-    animation-delay: -10s;
-}
-
-@keyframes float {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    50% {
-        transform: translate(10vw, 5vw) scale(1.1);
-    }
-
-    100% {
-        transform: translate(-5vw, 15vw) scale(0.9);
-    }
 }
 
 /* Scrollbar Styling */
@@ -597,9 +560,9 @@ body::after {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(14px) saturate(150%);
-    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -616,9 +579,7 @@ body::after {
 }
 
 .modal-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     width: 90%;

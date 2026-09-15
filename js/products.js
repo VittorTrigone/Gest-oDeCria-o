@@ -42,7 +42,13 @@ class ProductsModule {
         }
     }
 
-    render() {
+    render(force = false) {
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'products') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
         this.updateAssigneeFilterOptions();
         const products = window.store.getProducts();
 

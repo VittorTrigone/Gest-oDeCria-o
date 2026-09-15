@@ -12,12 +12,21 @@ class DashboardModule {
         this.render();
     }
 
-    render() {
+    render(force = false) {
         const products = window.store.getProducts();
         const employees = window.store.getEmployees();
         const approvals = window.store.getApprovals();
 
+        // Always update KPIs and sidebar badges
         this.renderKPIs(products, employees, approvals);
+
+        // Defer heavy dashboard cards if tab is not active
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'dashboard') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
         this.renderPipelineChart(products);
         this.renderBottleneckAlerts(products, employees);
         this.renderRecentActivities(products, approvals);

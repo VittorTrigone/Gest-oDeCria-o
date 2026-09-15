@@ -5,12 +5,16 @@
 class App {
     constructor() {
         this.currentTheme = localStorage.getItem('theme_preference') || 'dark';
+        this.currentTab = 'dashboard';
         this.init();
     }
 
     init() {
         this.applyTheme(this.currentTheme);
         this.bindEvents();
+        setTimeout(() => {
+            this.renderActiveTab(this.currentTab);
+        }, 50);
     }
 
     bindEvents() {
@@ -55,6 +59,7 @@ class App {
 
     switchTab(tabId) {
         if (!tabId) return;
+        this.currentTab = tabId;
 
         if (tabId === 'announcements' && window.store && window.store.markAnnouncementsAsRead) {
             window.store.markAnnouncementsAsRead(true);
@@ -63,7 +68,6 @@ class App {
             if (window.store.markChannelAsRead && window.chatModule && window.chatModule.currentChannel) {
                 window.store.markChannelAsRead(window.chatModule.currentChannel, true);
             }
-            if (window.chatModule) window.chatModule.render();
         }
 
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -101,13 +105,35 @@ class App {
             if (descEl) descEl.textContent = tabTitles[tabId].desc;
         }
 
-        // Trigger hooks for specific tabs
-        if (tabId === 'chat' && window.chatModule) {
-            window.store.markChannelAsRead(window.chatModule.currentChannel, true);
-            window.chatModule.render();
-        }
-        if (tabId === 'announcements' && window.approvalsModule) {
-            window.approvalsModule.render();
+        // Render tab on demand immediately
+        this.renderActiveTab(tabId);
+    }
+
+    renderActiveTab(tabId) {
+        const target = tabId || this.currentTab;
+        switch (target) {
+            case 'dashboard':
+                if (window.dashboardModule) window.dashboardModule.render(true);
+                break;
+            case 'kanban':
+                if (window.kanbanModule) window.kanbanModule.render(true);
+                break;
+            case 'products':
+                if (window.productsModule) window.productsModule.render(true);
+                break;
+            case 'tasks':
+                if (window.tasksModule) window.tasksModule.render(true);
+                break;
+            case 'team':
+                if (window.teamModule) window.teamModule.render(true);
+                break;
+            case 'approvals':
+            case 'announcements':
+                if (window.approvalsModule) window.approvalsModule.render(true);
+                break;
+            case 'chat':
+                if (window.chatModule) window.chatModule.render(true);
+                break;
         }
     }
 

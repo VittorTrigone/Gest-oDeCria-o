@@ -31,7 +31,13 @@ class TeamModule {
         }
     }
 
-    render() {
+    render(force = false) {
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'team') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
         this.renderStageConfig();
         const container = document.getElementById('team-grid-container');
         if (!container) return;

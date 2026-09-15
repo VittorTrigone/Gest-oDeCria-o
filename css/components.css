@@ -11,9 +11,7 @@
 }
 
 .kpi-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 1.25rem 1.5rem;
@@ -94,8 +92,7 @@
 }
 
 .panel-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -222,7 +219,6 @@
 
 .kanban-column {
     background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     display: flex;
@@ -278,8 +274,6 @@
 /* Kanban Cards */
 .product-card {
     background: var(--bg-card-solid);
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 1rem;
@@ -409,9 +403,7 @@
 }
 
 .checklist-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 1.25rem;
@@ -759,8 +751,7 @@
 }
 
 .member-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -890,10 +881,9 @@
 .table-responsive {
     width: 100%;
     overflow-x: auto;
-    background: var(--bg-card);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    backdrop-filter: var(--glass-backdrop);
 }
 
 .products-table {
@@ -911,12 +901,10 @@
     font-weight: 700;
     letter-spacing: 0.6px;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-card-solid);
     position: sticky;
     top: 0;
     z-index: 2;
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .products-table td {
@@ -1013,8 +1001,7 @@
 
 /* --- Individual Tasks & Notifications --- */
 .task-assigned-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-backdrop);
+    background: var(--bg-card-solid);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 1.25rem;

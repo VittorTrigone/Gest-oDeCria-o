@@ -54,14 +54,13 @@ class TasksModule {
         }
     }
 
-    render() {
+    render(force = false) {
         // Se for funcionário, forçar a visualização das próprias tarefas
         const currentUser = window.store.state.auth.currentUser;
         if (currentUser && currentUser.role === 'employee') {
             this.activeEmployeeId = currentUser.id;
         }
 
-        this.updateEmployeeSelectorOptions();
         const emp = window.store.getEmployeeById(this.activeEmployeeId) || window.store.getEmployees()[0];
         if (!emp) return;
 
@@ -71,7 +70,7 @@ class TasksModule {
         const pendingPersonalCount = personalTasks.filter(t => !t.completed).length;
         const totalPendingCount = pendingPersonalCount;
 
-        // Update Nav Badge
+        // Update Nav Badge (always kept in sync)
         const navBadge = document.getElementById('badge-tasks-count');
         const tasksTabEl = document.querySelector('li[data-tab="tasks"]');
         if (navBadge) {
@@ -83,6 +82,15 @@ class TasksModule {
             }
             if (tasksTabEl) tasksTabEl.classList.toggle('has-unread', totalPendingCount > 0);
         }
+
+        // Lazy render guard: defer full DOM reconstruction if tab is not active
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'tasks') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
+        this.updateEmployeeSelectorOptions();
 
         // Render Current Employee Profile Header
         const profileContainer = document.getElementById('task-employee-profile-header');

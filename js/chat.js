@@ -43,10 +43,8 @@ class ChatModule {
         this.render();
     }
 
-    render() {
-        this.renderDMList();
-
-        // Update Nav Badge
+    render(force = false) {
+        // Update Nav Badge (always kept in sync)
         const navBadge = document.getElementById('badge-chat-count');
         const chatTabEl = document.querySelector('li[data-tab="chat"]');
         if (navBadge) {
@@ -59,6 +57,15 @@ class ChatModule {
             }
             if (chatTabEl) chatTabEl.classList.toggle('has-unread', unreadCount > 0);
         }
+
+        // Lazy render guard: defer heavy chat history & DM DOM reconstruction if tab is not active
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'chat') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
+        this.renderDMList();
 
         // Update Online Presence Counter (Excluindo o usuário atual)
         const onlineCountEl = document.getElementById('chat-online-count');

@@ -167,14 +167,16 @@ class SectorStore {
             this.clearMyPresence();
         });
 
-        // Heartbeat de presença online a cada 12 segundos enquanto a aba estiver aberta
+        // Heartbeat de presença online a cada 45 segundos enquanto a aba estiver visível
         setTimeout(() => {
             this.updateMyPresence(true);
         }, 2000);
 
         setInterval(() => {
-            this.updateMyPresence();
-        }, 12000);
+            if (!document.hidden) {
+                this.updateMyPresence();
+            }
+        }, 45000);
     }
 
     showLoadingOverlay() {
@@ -296,8 +298,8 @@ class SectorStore {
 
         const now = Date.now();
         const lastSeen = this.state.onlineEmployees[currentUser.id] || 0;
-        // Atualiza a cada 10 segundos enquanto a aba estiver aberta ou se forçado no login
-        if (force || (now - lastSeen >= 10000)) {
+        // Atualiza a cada 40 segundos enquanto a aba estiver visível ou se forçado no login
+        if (force || (now - lastSeen >= 40000)) {
             this.state.onlineEmployees[currentUser.id] = now;
             try { localStorage.setItem('creative_sector_manager_v5', JSON.stringify(this.state)); } catch (e) { }
             if (this.dbRef) {
@@ -325,8 +327,8 @@ class SectorStore {
     isEmployeeOnline(empId) {
         if (!this.state.onlineEmployees) return false;
         const lastSeen = this.state.onlineEmployees[empId] || 0;
-        // Considera online apenas se teve atividade ou heartbeat com a aba aberta nos últimos 25 segundos
-        return (Date.now() - lastSeen) < 25000;
+        // Considera online se teve atividade ou heartbeat com a aba aberta nos últimos 90 segundos
+        return (Date.now() - lastSeen) < 90000;
     }
 
     getOnlineOtherEmployeesCount() {

@@ -32,7 +32,13 @@ class ApprovalsModule {
         }
     }
 
-    render() {
+    render(force = false) {
+        if (!force && window.app && window.app.currentTab && window.app.currentTab !== 'approvals' && window.app.currentTab !== 'announcements') {
+            this.isDirty = true;
+            return;
+        }
+        this.isDirty = false;
+
         this.renderApprovalsList();
         this.renderAnnouncementsGrid();
     }
