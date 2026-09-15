@@ -659,18 +659,35 @@ class KanbanModule {
                 </div>
 
                 <div style="background: var(--bg-card-solid); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                    <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">💰 Resumo Etapa 3: Precificação por Canal</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin: 0;">💰 Resumo & Edição de Preços por Canal (Etapa 3)</h4>
+                        <span style="font-size: 0.72rem; color: var(--accent-emerald); background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 12px; font-weight: 700;">✏️ Editável</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0; margin-bottom: 0.75rem;">Caso identifique algum erro nos valores, você pode corrigir diretamente nos campos abaixo:</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.65rem;">
                         ${channels.map(ch => {
                             const normalVal = Number(prices[ch.k] || 0).toFixed(2);
                             const promoVal = Number(prices[ch.k + '_promo'] || 0).toFixed(2);
                             return `
-                                <div style="background: var(--bg-card); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.78rem;">
-                                    <strong style="color: var(--text-main); display: block; margin-bottom: 2px;">${ch.label}</strong>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="color: var(--accent-emerald); font-weight: 700;">Normal: R$ ${normalVal}</span>
-                                        ${ch.hasPromo ? `<span style="color: var(--accent-rose); font-weight: 700;">Promo: R$ ${promoVal}</span>` : ''}
-                                    </div>
+                                <div style="background: var(--bg-card); padding: 0.65rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.78rem;">
+                                    <strong style="color: var(--text-main); display: block; margin-bottom: 6px; font-size: 0.8rem;">${ch.label}</strong>
+                                    ${ch.hasPromo ? `
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                            <div>
+                                                <span style="font-size: 0.68rem; color: var(--accent-emerald); font-weight: 700; display: block; margin-bottom: 2px;">Normal (R$)</span>
+                                                <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${normalVal}" style="padding: 0.35rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-emerald); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px;" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}', this.value)">
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 0.68rem; color: var(--accent-rose); font-weight: 700; display: block; margin-bottom: 2px;">Promo (R$)</span>
+                                                <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}_promo" value="${promoVal}" style="padding: 0.35rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-rose); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px;" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}_promo', this.value)">
+                                            </div>
+                                        </div>
+                                    ` : `
+                                        <div>
+                                            <span style="font-size: 0.68rem; color: var(--accent-emerald); font-weight: 700; display: block; margin-bottom: 2px;">Normal (R$)</span>
+                                            <input type="number" step="0.01" class="form-control channel-price-input" data-channel="${ch.k}" value="${normalVal}" style="padding: 0.35rem 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--accent-emerald); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px;" onchange="window.kanbanModule.handlePriceInputChange('${product.id}', '${ch.k}', this.value)">
+                                        </div>
+                                    `}
                                 </div>
                             `;
                         }).join('')}
